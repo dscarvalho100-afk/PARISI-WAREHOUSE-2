@@ -3,405 +3,103 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PARISI Warehouse 2</title>
+  <title>PARISI Warehouse 2 Search</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-      background: linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)), url("background.jpg");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      color: #fff;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 24px 14px 60px;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 22px;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 30px;
-      letter-spacing: 1px;
-    }
-
-    .header p {
-      margin: 8px 0 0;
-      color: #ddd;
-      font-size: 14px;
-    }
-
-    .search-card {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 18px;
-      padding: 16px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      margin-bottom: 18px;
-    }
-
-    input {
-      width: 100%;
-      padding: 15px;
-      border-radius: 12px;
-      border: none;
-      outline: none;
-      font-size: 17px;
-      margin-bottom: 12px;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    button {
-      padding: 13px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-search {
-      background: #00b894;
-      color: white;
-    }
-
-    .btn-clear {
-      background: #dfe6e9;
-      color: #111;
-    }
-
-    .status {
-      margin-top: 12px;
-      color: #f1f1f1;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .summary {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .summary-box {
-      background: rgba(255,255,255,0.95);
-      color: #111;
-      border-radius: 16px;
-      padding: 14px;
-      text-align: center;
-      box-shadow: 0 5px 16px rgba(0,0,0,0.25);
-    }
-
-    .summary-number {
-      font-size: 30px;
-      font-weight: bold;
-      color: #0984e3;
-      margin-bottom: 4px;
-    }
-
-    .summary-label {
-      font-size: 13px;
-      color: #636e72;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .results {
-      display: grid;
-      gap: 12px;
-    }
-
-    .result-card {
-      background: rgba(255,255,255,0.94);
-      color: #111;
-      border-radius: 16px;
-      padding: 14px;
-      box-shadow: 0 5px 16px rgba(0,0,0,0.25);
-    }
-
-    .bin {
-      font-size: 22px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      color: #0984e3;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .field {
-      background: #f1f2f6;
-      padding: 8px;
-      border-radius: 10px;
-      font-size: 14px;
-      min-height: 38px;
-    }
-
-    .label {
-      display: block;
-      font-size: 11px;
-      color: #636e72;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-      font-weight: bold;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 22px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 16px;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      color: #ccc;
-      margin-top: 18px;
-    }
-
-    @media (max-width: 600px) {
-      .header h1 {
-        font-size: 24px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .buttons {
-        grid-template-columns: 1fr;
-      }
-
-      .summary {
-        grid-template-columns: 1fr;
-      }
-    }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #222; }
+    header { background: #12384f; color: white; padding: 18px; text-align: center; }
+    .wrap { max-width: 1050px; margin: 18px auto; padding: 0 14px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    input { flex: 1; min-width: 220px; padding: 14px; font-size: 16px; border: 1px solid #bbb; border-radius: 8px; }
+    button, .btn { padding: 14px 18px; border: 0; border-radius: 8px; background: #12384f; color: white; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+    .map-btn { background: #0f766e; }
+    .summary { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+    .card { background: white; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
+    th { background: #12384f; color: white; position: sticky; top: 0; }
+    tr:hover { background: #f7fbff; }
+    .muted { color: #666; font-size: 13px; }
+    @media (max-width: 700px) { th, td { font-size: 12px; padding: 8px; } header { padding: 14px; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>PARISI WAREHOUSE 2</h1>
-      <p>Search by BIN, code, street, section or status</p>
+  <header>
+    <h1>PARISI Warehouse 2</h1>
+    <div class="muted" style="color:#d6e8f2">Search by code, bin, section, status or observation</div>
+  </header>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <input id="searchInput" placeholder="Search code or location..." autocomplete="off" />
+      <button onclick="clearSearch()">CLEAR</button>
+      <a class="btn map-btn" href="map.html">MAP</a>
     </div>
 
-    <div class="search-card">
-      <input id="searchInput" type="text" placeholder="Type BIN or CODE..." autocomplete="off" />
-      <div class="buttons">
-        <button class="btn-search" onclick="searchData()">Search</button>
-        <button class="btn-clear" onclick="clearSearch()">Clear</button>
-      </div>
-      <div id="status" class="status">Loading data...</div>
+    <div class="summary">
+      <div class="card"><b>Total rows:</b> <span id="totalRows">0</span></div>
+      <div class="card"><b>Results:</b> <span id="resultCount">0</span></div>
+      <div class="card"><b>Total Qty:</b> <span id="totalQty">0</span></div>
     </div>
 
-    <div id="summary" class="summary">
-      <div class="summary-box">
-        <div id="totalPallets" class="summary-number">0</div>
-        <div class="summary-label">Total Pallets / Locations</div>
-      </div>
-      <div class="summary-box">
-        <div id="totalQty" class="summary-number">0</div>
-        <div class="summary-label">Total Product Qty</div>
-      </div>
-    </div>
-
-    <div id="results" class="results"></div>
-
-    <div class="footer">
-      Data file: data.csv
-    </div>
+    <table>
+      <thead><tr id="tableHead"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
   </div>
 
-  <script>
-    let warehouseData = [];
+<script>
+let allRows = [];
+let headers = [];
 
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let value = "";
-      let insideQuotes = false;
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', insideQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i + 1];
+    if (c === '"' && insideQuotes && n === '"') { cell += '"'; i++; }
+    else if (c === '"') insideQuotes = !insideQuotes;
+    else if (c === ',' && !insideQuotes) { row.push(cell); cell = ''; }
+    else if ((c === '\n' || c === '\r') && !insideQuotes) {
+      if (cell.length || row.length) { row.push(cell); rows.push(row); row = []; cell = ''; }
+      if (c === '\r' && n === '\n') i++;
+    } else cell += c;
+  }
+  if (cell.length || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
 
-      for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const next = text[i + 1];
+function render(rows) {
+  document.getElementById('resultCount').textContent = rows.length;
+  const qtyIndex = headers.findIndex(h => h.toLowerCase() === 'qty');
+  const totalQty = rows.reduce((sum, r) => sum + (parseFloat(r[qtyIndex]) || 0), 0);
+  document.getElementById('totalQty').textContent = totalQty;
 
-        if (char === '"' && insideQuotes && next === '"') {
-          value += '"';
-          i++;
-        } else if (char === '"') {
-          insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-          row.push(value);
-          value = "";
-        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-          if (char === '\r' && next === '\n') i++;
-          row.push(value);
-          if (row.some(cell => cell.trim() !== "")) rows.push(row);
-          row = [];
-          value = "";
-        } else {
-          value += char;
-        }
-      }
+  document.getElementById('tableHead').innerHTML = headers.map(h => `<th>${h}</th>`).join('');
+  document.getElementById('tableBody').innerHTML = rows.map(r => '<tr>' + headers.map((_, i) => `<td>${r[i] || ''}</td>`).join('') + '</tr>').join('');
+}
 
-      if (value || row.length) {
-        row.push(value);
-        if (row.some(cell => cell.trim() !== "")) rows.push(row);
-      }
+function applySearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const filtered = !q ? allRows : allRows.filter(r => r.join(' ').toLowerCase().includes(q));
+  render(filtered);
+}
 
-      return rows;
-    }
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  applySearch();
+}
 
-    function normalizeHeader(header) {
-      return String(header || "").trim();
-    }
+fetch('data.csv')
+  .then(r => r.text())
+  .then(text => {
+    const parsed = parseCSV(text).filter(r => r.some(c => c.trim() !== ''));
+    headers = parsed[0];
+    allRows = parsed.slice(1);
+    document.getElementById('totalRows').textContent = allRows.length;
+    render(allRows);
+  });
 
-    function loadData() {
-      const cacheBuster = new Date().getTime();
-
-      fetch("data.csv?v=" + cacheBuster)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error("Could not load data.csv");
-          }
-          return response.text();
-        })
-        .then(text => {
-          const rows = parseCSV(text);
-          const headers = rows[0].map(normalizeHeader);
-
-          warehouseData = rows.slice(1).map(row => {
-            const item = {};
-            headers.forEach((header, index) => {
-              item[header] = row[index] ? String(row[index]).trim() : "";
-            });
-            return item;
-          });
-
-          document.getElementById("status").textContent =
-            warehouseData.length + " items loaded successfully.";
-        })
-        .catch(error => {
-          document.getElementById("status").textContent =
-            "Error loading data.csv. Check if the file is in the same folder as index.html.";
-          console.error(error);
-        });
-    }
-
-    function searchData() {
-      const query = document.getElementById("searchInput").value.trim().toLowerCase();
-      const resultsDiv = document.getElementById("results");
-      const summaryDiv = document.getElementById("summary");
-
-      resultsDiv.innerHTML = "";
-      summaryDiv.style.display = "none";
-
-      if (!query) {
-        resultsDiv.innerHTML = '<div class="empty">Type something to search.</div>';
-        return;
-      }
-
-      const results = warehouseData.filter(item => {
-        return Object.values(item).some(value =>
-          String(value || "").toLowerCase().includes(query)
-        );
-      });
-
-      if (results.length === 0) {
-        resultsDiv.innerHTML = '<div class="empty">No results found.</div>';
-        return;
-      }
-
-      const totalPallets = results.length;
-      const totalQty = results.reduce((sum, item) => {
-        return sum + parseQty(item.Qty);
-      }, 0);
-
-      document.getElementById("totalPallets").textContent = totalPallets.toLocaleString("en-US");
-      document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
-      summaryDiv.style.display = "grid";
-
-      resultsDiv.innerHTML = results.map(item => createCard(item)).join("");
-    }
-
-    function parseQty(value) {
-      if (!value) return 0;
-      const cleaned = String(value)
-        .replace(/,/g, "")
-        .replace(/[^\d.-]/g, "");
-
-      const number = parseFloat(cleaned);
-      return isNaN(number) ? 0 : number;
-    }
-
-    function createCard(item) {
-      return `
-        <div class="result-card">
-          <div class="bin">${safe(item.BIN)}</div>
-          <div class="grid">
-            <div class="field"><span class="label">Street</span>${safe(item.Street)}</div>
-            <div class="field"><span class="label">Building</span>${safe(item.Building)}</div>
-            <div class="field"><span class="label">Level</span>${safe(item.Level)}</div>
-            <div class="field"><span class="label">Side</span>${safe(item.Side)}</div>
-            <div class="field"><span class="label">Code</span>${safe(item.CODE)}</div>
-            <div class="field"><span class="label">Qty</span>${safe(item.Qty)}</div>
-            <div class="field"><span class="label">Section</span>${safe(item.Section)}</div>
-            <div class="field"><span class="label">Status</span>${safe(item.Status)}</div>
-            <div class="field" style="grid-column: 1 / -1;"><span class="label">Observation</span>${safe(item.Observation)}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    function safe(value) {
-      if (!value) return "-";
-      return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function clearSearch() {
-      document.getElementById("searchInput").value = "";
-      document.getElementById("results").innerHTML = "";
-      document.getElementById("summary").style.display = "none";
-      document.getElementById("searchInput").focus();
-    }
-
-    document.getElementById("searchInput").addEventListener("keyup", function(event) {
-      if (event.key === "Enter") {
-        searchData();
-      }
-    });
-
-    loadData();
-  </script>
+document.getElementById('searchInput').addEventListener('input', applySearch);
+</script>
 </body>
 </html>
