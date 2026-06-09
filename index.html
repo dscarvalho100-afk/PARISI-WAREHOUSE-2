@@ -1,105 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PARISI Warehouse 2 Search</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f8; color: #222; }
-    header { background: #12384f; color: white; padding: 18px; text-align: center; }
-    .wrap { max-width: 1050px; margin: 18px auto; padding: 0 14px; }
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-    input { flex: 1; min-width: 220px; padding: 14px; font-size: 16px; border: 1px solid #bbb; border-radius: 8px; }
-    button, .btn { padding: 14px 18px; border: 0; border-radius: 8px; background: #12384f; color: white; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
-    .map-btn { background: #0f766e; }
-    .summary { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
-    .card { background: white; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 14px; }
-    th { background: #12384f; color: white; position: sticky; top: 0; }
-    tr:hover { background: #f7fbff; }
-    .muted { color: #666; font-size: 13px; }
-    @media (max-width: 700px) { th, td { font-size: 12px; padding: 8px; } header { padding: 14px; } }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PARISI Warehouse 2 Search</title>
+<style>
+  body{font-family:Arial,sans-serif;margin:0;background:#f4f6f8;color:#222} header{background:#12384f;color:white;padding:18px;text-align:center}.wrap{max-width:1100px;margin:18px auto;padding:0 14px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}input{flex:1;min-width:220px;padding:14px;font-size:16px;border:1px solid #bbb;border-radius:8px}button,.btn{padding:14px 18px;border:0;border-radius:8px;background:#12384f;color:white;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block}.clear{background:#6b7280}.map-btn{background:#0f766e}.summary{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.card{background:white;border-radius:10px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.12)}table{width:100%;border-collapse:collapse;background:white;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.12)}th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:14px}th{background:#12384f;color:white;position:sticky;top:0}tr:hover{background:#f7fbff}.muted{color:#666;font-size:13px}.error{background:#fff2f2;color:#a00;padding:12px;border-radius:8px;margin:10px 0;display:none}@media(max-width:700px){.toolbar{display:block}.toolbar>*{width:100%;box-sizing:border-box;margin:5px 0}th,td{font-size:12px;padding:8px}header{padding:14px}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>PARISI Warehouse 2</h1>
-    <div class="muted" style="color:#d6e8f2">Search by code, bin, section, status or observation</div>
-  </header>
-
-  <div class="wrap">
-    <div class="toolbar">
-      <input id="searchInput" placeholder="Search code or location..." autocomplete="off" />
-      <button onclick="clearSearch()">CLEAR</button>
-      <a class="btn map-btn" href="map.html">MAP</a>
-    </div>
-
-    <div class="summary">
-      <div class="card"><b>Total rows:</b> <span id="totalRows">0</span></div>
-      <div class="card"><b>Results:</b> <span id="resultCount">0</span></div>
-      <div class="card"><b>Total Qty:</b> <span id="totalQty">0</span></div>
-    </div>
-
-    <table>
-      <thead><tr id="tableHead"></tr></thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+<header><h1>PARISI Warehouse 2</h1><div style="color:#d6e8f2">Search by code, bin, section, status or observation</div></header>
+<div class="wrap">
+  <div class="toolbar">
+    <input id="searchInput" placeholder="Type code or location, example: PN710" autocomplete="off" />
+    <button id="searchBtn" onclick="applySearch()">SEARCH</button>
+    <button class="clear" onclick="clearSearch()">CLEAR</button>
+    <a class="btn map-btn" href="map.html">MAP</a>
   </div>
-
+  <div id="errorBox" class="error"></div>
+  <div class="summary"><div class="card"><b>Total rows:</b> <span id="totalRows">0</span></div><div class="card"><b>Results:</b> <span id="resultCount">0</span></div><div class="card"><b>Total Qty:</b> <span id="totalQty">0</span></div></div>
+  <table><thead><tr id="tableHead"></tr></thead><tbody id="tableBody"></tbody></table>
+</div>
 <script>
-let allRows = [];
-let headers = [];
-
-function parseCSV(text) {
-  const rows = [];
-  let row = [], cell = '', insideQuotes = false;
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i], n = text[i + 1];
-    if (c === '"' && insideQuotes && n === '"') { cell += '"'; i++; }
-    else if (c === '"') insideQuotes = !insideQuotes;
-    else if (c === ',' && !insideQuotes) { row.push(cell); cell = ''; }
-    else if ((c === '\n' || c === '\r') && !insideQuotes) {
-      if (cell.length || row.length) { row.push(cell); rows.push(row); row = []; cell = ''; }
-      if (c === '\r' && n === '\n') i++;
-    } else cell += c;
-  }
-  if (cell.length || row.length) { row.push(cell); rows.push(row); }
-  return rows;
-}
-
-function render(rows) {
-  document.getElementById('resultCount').textContent = rows.length;
-  const qtyIndex = headers.findIndex(h => h.toLowerCase() === 'qty');
-  const totalQty = rows.reduce((sum, r) => sum + (parseFloat(r[qtyIndex]) || 0), 0);
-  document.getElementById('totalQty').textContent = totalQty;
-
-  document.getElementById('tableHead').innerHTML = headers.map(h => `<th>${h}</th>`).join('');
-  document.getElementById('tableBody').innerHTML = rows.map(r => '<tr>' + headers.map((_, i) => `<td>${r[i] || ''}</td>`).join('') + '</tr>').join('');
-}
-
-function applySearch() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
-  const filtered = !q ? allRows : allRows.filter(r => r.join(' ').toLowerCase().includes(q));
-  render(filtered);
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  applySearch();
-}
-
-fetch('data.csv')
-  .then(r => r.text())
-  .then(text => {
-    const parsed = parseCSV(text).filter(r => r.some(c => c.trim() !== ''));
-    headers = parsed[0];
-    allRows = parsed.slice(1);
-    document.getElementById('totalRows').textContent = allRows.length;
-    render(allRows);
-  });
-
-document.getElementById('searchInput').addEventListener('input', applySearch);
+let allRows=[], headers=[];
+function norm(s){return String(s||'').toLowerCase().replace(/^\uFEFF/,'').trim();}
+function esc(s){return String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function parseCSV(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&q&&n==='"'){cell+='"';i++;}else if(c==='"'){q=!q;}else if(c===','&&!q){row.push(cell);cell='';}else if((c==='\n'||c==='\r')&&!q){if(cell.length||row.length){row.push(cell);rows.push(row);row=[];cell='';}if(c==='\r'&&n==='\n')i++;}else{cell+=c;}}if(cell.length||row.length){row.push(cell);rows.push(row);}return rows;}
+function render(rows){document.getElementById('resultCount').textContent=rows.length;const qi=headers.findIndex(h=>norm(h)==='qty');const total=rows.reduce((s,r)=>s+(parseFloat(r[qi])||0),0);document.getElementById('totalQty').textContent=total;document.getElementById('tableHead').innerHTML=headers.map(h=>`<th>${esc(h)}</th>`).join('');document.getElementById('tableBody').innerHTML=rows.map(r=>'<tr>'+headers.map((_,i)=>`<td>${esc(r[i])}</td>`).join('')+'</tr>').join('');}
+function applySearch(){const q=norm(document.getElementById('searchInput').value);const codeIndex=headers.findIndex(h=>norm(h)==='code');let filtered;if(!q){filtered=allRows;}else{filtered=allRows.filter(r=>norm(r[codeIndex]).includes(q)||r.some(c=>norm(c).includes(q)));}render(filtered);}
+function clearSearch(){document.getElementById('searchInput').value='';render(allRows);document.getElementById('searchInput').focus();}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')applySearch();});
+fetch('data.csv?v=' + Date.now()).then(r=>{if(!r.ok)throw new Error('data.csv not found');return r.text();}).then(text=>{const parsed=parseCSV(text).filter(r=>r.some(c=>String(c).trim()!==''));headers=parsed[0].map(h=>String(h).replace(/^\uFEFF/,''));allRows=parsed.slice(1);document.getElementById('totalRows').textContent=allRows.length;render(allRows);}).catch(err=>{const box=document.getElementById('errorBox');box.style.display='block';box.textContent='Error loading data.csv: '+err.message;});
 </script>
 </body>
 </html>
