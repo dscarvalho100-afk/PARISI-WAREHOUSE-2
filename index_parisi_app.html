@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PARISI Warehouse 2</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #0d1d28;
+      --panel: #142938;
+      --panel2: #193346;
+      --line: rgba(255,255,255,.12);
+      --text: #f8fbff;
+      --muted: #9fb1bf;
+      --accent: #ffb097;
+      --accent2: #ff8d72;
+      --white: #ffffff;
+      --dark: #09141d;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #203d50 0, var(--bg) 42%, #071019 100%);
+      color: var(--text);
+      padding-bottom: 86px;
+    }
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(17,38,52,.96), rgba(8,18,27,.98));
+      border-left: 1px solid rgba(255,255,255,.08);
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .topbar {
+      padding: 24px 18px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo {
+      font-size: 30px;
+      letter-spacing: 3px;
+      font-weight: 300;
+      color: #f2c1b2;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .title { border-left: 1px solid rgba(255,255,255,.25); padding-left: 12px; }
+    .title h1 { margin: 0; font-size: 17px; line-height: 1.1; }
+    .title p { margin: 5px 0 0; font-size: 12px; color: var(--muted); }
+    .icon-btn {
+      width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line);
+      background: rgba(255,255,255,.08); color: var(--accent); display: grid; place-items: center;
+      font-size: 22px; cursor: pointer;
+    }
+    .content { padding: 18px; }
+    .label-top { font-size: 13px; font-weight: 700; letter-spacing: .5px; margin-bottom: 10px; color: #d7e3ec; }
+    .search-row { display: grid; grid-template-columns: 1fr 128px; gap: 10px; margin-bottom: 16px; }
+    .search-box { position: relative; }
+    .search-box span { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6d7d89; font-size: 20px; }
+    input {
+      width: 100%; height: 56px; border: 0; border-radius: 9px; outline: 0; padding: 0 15px 0 48px;
+      font-size: 18px; font-weight: 700; color: #172431; background: var(--white); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+    }
+    button { border: 0; cursor: pointer; font-weight: 800; }
+    .btn-search {
+      height: 56px; border-radius: 9px; color: #1c2730; background: linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 8px 20px rgba(255,141,114,.22); font-size: 15px;
+    }
+    .status { color: var(--muted); font-size: 12px; min-height: 18px; margin-bottom: 12px; }
+    .summary { display:none; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+    .summary-box { background: rgba(255,255,255,.07); border: 1px solid var(--line); border-radius:14px; padding:12px; }
+    .summary-number { font-size:24px; font-weight:900; color:var(--accent); }
+    .summary-label { font-size:11px; color:var(--muted); text-transform:uppercase; font-weight:800; margin-top:3px; }
+    .results { display: grid; gap: 14px; }
+    .result-card {
+      background: linear-gradient(180deg, rgba(25,51,70,.96), rgba(17,36,50,.96));
+      border: 1px solid var(--line); border-radius: 15px; padding: 16px; box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    }
+    .result-title { color: var(--accent); font-size: 13px; font-weight:900; display:flex; align-items:center; gap:8px; margin-bottom:14px; text-transform:uppercase; }
+    .result-main { display:grid; grid-template-columns:1fr 118px; gap:14px; align-items:stretch; }
+    .big-label { color:var(--muted); font-size:12px; margin-bottom:5px; }
+    .code { font-size:27px; font-weight:900; margin-bottom:16px; }
+    .location { font-size:30px; font-weight:900; margin-bottom:16px; }
+    .mini-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; font-size:12px; color:#d6e2ea; }
+    .mini-grid b { display:block; color:var(--muted); font-size:11px; margin-bottom:4px; }
+    .side-panel { display:grid; gap:10px; }
+    .status-box { border:1px solid var(--line); border-radius:11px; display:grid; place-items:center; min-height:84px; color:var(--accent); font-weight:900; text-align:center; }
+    .view-map { border-radius:11px; min-height:68px; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#1c2730; font-size:15px; }
+    .details { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .field { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); padding:10px; border-radius:11px; font-size:14px; color:#fff; min-height:48px; }
+    .field .label { display:block; color:var(--muted); font-size:10px; text-transform:uppercase; font-weight:900; margin-bottom:4px; }
+    .field.full { grid-column:1/-1; }
+    .empty { background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; color:#dce6ec; }
+    .map-preview { margin-top:18px; background:#fff; color:#162431; border-radius:14px; padding:14px; }
+    .map-preview h2 { margin:0 0 10px; font-size:16px; }
+    .map-preview img { width:100%; border-radius:10px; display:block; border:1px solid #e5e7eb; }
+    .bottom-nav {
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 520px;
+      height: 74px; background: rgba(9,20,29,.97); border-top: 1px solid var(--line);
+      display:grid; grid-template-columns:repeat(4,1fr); z-index:10;
+    }
+    .nav-item { display:grid; place-items:center; align-content:center; gap:3px; color:#91a5b3; font-size:11px; text-decoration:none; }
+    .nav-item strong { font-size:22px; line-height:1; }
+    .nav-item.active { color:var(--accent); }
+    @media (max-width:420px){ .search-row{grid-template-columns:1fr 112px;} .logo{font-size:25px;} .result-main{grid-template-columns:1fr;} .side-panel{grid-template-columns:1fr 1fr;} }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">PARISI</div>
+        <div class="title"><h1>Warehouse 2</h1><p>Pallet Locator System</p></div>
+      </div>
+      <button class="icon-btn" onclick="openMap()" title="Open Map">⌁</button>
+    </header>
+
+    <section class="content">
+      <div class="label-top">PESQUISAR CÓDIGO</div>
+      <div class="search-row">
+        <div class="search-box"><span>⌕</span><input id="searchInput" type="text" placeholder="PA110" autocomplete="off" /></div>
+        <button class="btn-search" onclick="searchData()">BUSCAR</button>
+      </div>
+      <div id="status" class="status">Loading data...</div>
+
+      <div id="summary" class="summary">
+        <div class="summary-box"><div id="totalPallets" class="summary-number">0</div><div class="summary-label">Total locations</div></div>
+        <div class="summary-box"><div id="totalQty" class="summary-number">0</div><div class="summary-label">Total qty</div></div>
+      </div>
+
+      <div id="results" class="results"></div>
+
+      <div class="map-preview">
+        <h2>MAPA DA WAREHOUSE 2</h2>
+        <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item active" href="index.html"><strong>⌕</strong><span>Buscar</span></a>
+    <a class="nav-item" href="map.html"><strong>♧</strong><span>Mapa</span></a>
+    <a class="nav-item" href="#" onclick="alert('Dashboard can be added later'); return false;"><strong>▥</strong><span>Dashboard</span></a>
+    <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Limpar</span></a>
+  </nav>
+
+  <script>
+    let warehouseData = [];
+
+    function parseCSV(text) {
+      const rows = []; let row = []; let value = ""; let insideQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i]; const next = text[i + 1];
+        if (char === '"' && insideQuotes && next === '"') { value += '"'; i++; }
+        else if (char === '"') insideQuotes = !insideQuotes;
+        else if (char === ',' && !insideQuotes) { row.push(value); value = ""; }
+        else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (char === '\r' && next === '\n') i++; row.push(value);
+          if (row.some(cell => cell.trim() !== "")) rows.push(row); row = []; value = "";
+        } else value += char;
+      }
+      if (value || row.length) { row.push(value); if (row.some(cell => cell.trim() !== "")) rows.push(row); }
+      return rows;
+    }
+
+    function normalizeHeader(header) { return String(header || "").trim(); }
+
+    function loadData() {
+      const cacheBuster = new Date().getTime();
+      fetch("data.csv?v=" + cacheBuster)
+        .then(response => { if (!response.ok) throw new Error("Could not load data.csv"); return response.text(); })
+        .then(text => {
+          const rows = parseCSV(text); const headers = rows[0].map(normalizeHeader);
+          warehouseData = rows.slice(1).map(row => { const item = {}; headers.forEach((header, index) => { item[header] = row[index] ? String(row[index]).trim() : ""; }); return item; });
+          document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
+        })
+        .catch(error => { document.getElementById("status").textContent = "Error loading data.csv. Check if the file is in the same folder as index.html."; console.error(error); });
+    }
+
+    function searchData() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
+      resultsDiv.innerHTML = ""; summaryDiv.style.display = "none";
+      if (!query) { resultsDiv.innerHTML = '<div class="empty">Type a code or location to search.</div>'; return; }
+      const results = warehouseData.filter(item => Object.values(item).some(value => String(value || "").toLowerCase().includes(query)));
+      if (results.length === 0) { resultsDiv.innerHTML = '<div class="empty">No results found.</div>'; return; }
+      const totalPallets = results.length;
+      const totalQty = results.reduce((sum, item) => sum + parseQty(item.Qty), 0);
+      document.getElementById("totalPallets").textContent = totalPallets.toLocaleString("en-US");
+      document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
+      summaryDiv.style.display = "grid";
+      resultsDiv.innerHTML = results.map(item => createCard(item)).join("");
+    }
+
+    function parseQty(value) {
+      if (!value) return 0;
+      const number = parseFloat(String(value).replace(/,/g, "").replace(/[^\d.-]/g, ""));
+      return isNaN(number) ? 0 : number;
+    }
+
+    function createCard(item) {
+      const bin = safe(item.BIN || `${item.Street || ''}${item.Building || ''}${item.Level || ''}${item.Side || ''}`);
+      return `
+        <div class="result-card">
+          <div class="result-title">📍 RESULTADO</div>
+          <div class="result-main">
+            <div>
+              <div class="big-label">Código</div><div class="code">${safe(item.CODE)}</div>
+              <div class="big-label">Localização</div><div class="location">${bin}</div>
+              <div class="mini-grid">
+                <div><b>Prateleira</b>${safe(item.Street)}</div><div><b>Posição</b>${safe(item.Building)}</div><div><b>Nível/Lado</b>${safe(item.Level)}${safe(item.Side)}</div>
+              </div>
+            </div>
+            <div class="side-panel">
+              <div class="status-box">▧<br>${safe(item.Status || 'OCUPADO')}</div>
+              <button class="view-map" onclick="openMap()">♧ VIEW MAP</button>
+            </div>
+          </div>
+          <div class="details">
+            <div class="field"><span class="label">Quantidade</span>${safe(item.Qty)}</div>
+            <div class="field"><span class="label">Section</span>${safe(item.Section)}</div>
+            <div class="field full"><span class="label">Observation</span>${safe(item.Observation)}</div>
+          </div>
+        </div>`;
+    }
+
+    function safe(value) {
+      if (!value) return "-";
+      return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+    function openMap() { window.location.href = "map.html"; }
+    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = ""; document.getElementById("summary").style.display = "none"; document.getElementById("searchInput").focus(); }
+    document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
+    loadData();
+  </script>
+</body>
+</html>

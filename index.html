@@ -111,6 +111,86 @@
     .nav-item strong { font-size:22px; line-height:1; }
     .nav-item.active { color:var(--accent); }
     @media (max-width:420px){ .search-row{grid-template-columns:1fr 112px;} .logo{font-size:25px;} .result-main{grid-template-columns:1fr;} .side-panel{grid-template-columns:1fr 1fr;} }
+
+    /* DESKTOP VERSION - mobile layout remains unchanged under 900px */
+    .desktop-nav, .desktop-hero, .desktop-panel, .desktop-map-area, .desktop-footer { display: none; }
+
+    @media (min-width: 900px) {
+      body { padding-bottom: 0; background: #071019; overflow-x: hidden; }
+      .app {
+        max-width: none; width: 100%; min-height: 100vh; background: #f4f7fb; border: 0;
+        display: grid; grid-template-columns: 340px 1fr; grid-template-rows: 96px 1fr 42px;
+      }
+      .topbar {
+        grid-column: 1 / -1; padding: 0 26px; height: 96px;
+        background: linear-gradient(90deg, #071019, #0d1d28 48%, #0a1420);
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .logo { font-size: 36px; color: #fff; font-weight: 900; letter-spacing: 2px; }
+      .logo::first-letter { color: #ff8d72; }
+      .title h1 { font-size: 22px; }
+      .title p { font-size: 14px; }
+      .icon-btn { display: none; }
+      .desktop-nav { display: flex; align-items: center; gap: 30px; margin-left: auto; height: 100%; }
+      .desktop-nav a {
+        color: #b8c6d2; text-decoration: none; font-size: 13px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .4px; height: 100%; display: flex; align-items: center;
+        gap: 8px; border-bottom: 3px solid transparent;
+      }
+      .desktop-nav a.active { color: #ffb097; border-bottom-color: #ff8d72; }
+      .content {
+        grid-column: 1; grid-row: 2; padding: 22px; background: linear-gradient(180deg, #0d1d28, #071019);
+        border-right: 1px solid rgba(255,255,255,.08); overflow-y: auto;
+      }
+      .label-top { color: #edf5fa; font-size: 14px; }
+      .search-row { grid-template-columns: 1fr 108px; }
+      input { height: 48px; font-size: 16px; }
+      .btn-search { height: 48px; }
+      .map-preview { display: none; }
+      .bottom-nav { display: none; }
+      .results { max-height: none; }
+      .result-card { border-radius: 12px; padding: 16px; }
+      .result-main { grid-template-columns: 1fr; }
+      .side-panel { grid-template-columns: 1fr; }
+      .status-box { min-height: 60px; }
+      .view-map { min-height: 50px; }
+      .desktop-map-area {
+        display: block; grid-column: 2; grid-row: 2; padding: 22px; color: #172431;
+        overflow: auto; background: #f4f7fb;
+      }
+      .desktop-hero { display: grid; grid-template-columns: 1fr 240px; gap: 18px; margin-bottom: 18px; }
+      .desktop-panel {
+        display: block; background: #fff; border: 1px solid #dce4eb; border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(9,20,29,.08);
+      }
+      .desktop-panel-header {
+        padding: 16px 18px; border-bottom: 1px solid #e7edf2; display: flex;
+        align-items: center; justify-content: space-between;
+      }
+      .desktop-panel-header h2 { margin: 0; font-size: 18px; color: #142938; }
+      .desktop-chip { border: 1px solid #dce4eb; border-radius: 10px; padding: 9px 12px; font-size: 12px; font-weight: 900; color: #526676; background:#fff; }
+      .desktop-map-img-wrap { padding: 18px; }
+      .desktop-map-img-wrap img { width: 100%; max-height: 520px; object-fit: contain; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; display: block; }
+      .desktop-stats { display: grid; gap: 14px; }
+      .desktop-stat { padding: 18px; }
+      .desktop-stat strong { display:block; font-size: 30px; color:#ff8d72; margin-bottom:4px; }
+      .desktop-stat span { font-size:12px; font-weight:900; text-transform:uppercase; color:#657a89; }
+      .desktop-info { padding: 18px; display:grid; gap: 10px; }
+      .desktop-info h3 { margin:0 0 6px; color:#142938; font-size:17px; }
+      .desktop-info p { margin:0; color:#526676; font-size:14px; line-height:1.45; }
+      .legend { display:grid; grid-template-columns: repeat(5, minmax(110px,1fr)); gap:10px; margin-top:14px; }
+      .legend-item { border:1px solid #e5ebf0; border-radius:10px; padding:10px; font-size:12px; font-weight:800; color:#526676; background:#fbfcfe; display:flex; gap:8px; align-items:center; }
+      .dot { width:14px; height:14px; border-radius:4px; display:inline-block; background:#45bf5a; }
+      .dot.empty { background:#eef2f5; border:1px solid #cad4dc; }
+      .dot.low { background:#ffd166; }
+      .dot.blocked { background:#ef4444; }
+      .dot.selected { background:transparent; border:2px solid #45bf5a; }
+      .desktop-footer {
+        display:flex; grid-column: 1 / -1; grid-row: 3; align-items:center; justify-content:space-between;
+        padding:0 24px; background:#071019; color:#91a5b3; font-size:12px;
+      }
+      .connected { color:#ffb097; font-weight:900; }
+    }
   </style>
 </head>
 <body>
@@ -120,6 +200,13 @@
         <div class="logo">PARISI</div>
         <div class="title"><h1>Warehouse 2</h1><p>Pallet Location System</p></div>
       </div>
+      <nav class="desktop-nav">
+        <a class="active" href="index.html">⌕ Search</a>
+        <a href="map.html">♧ Map</a>
+        <a href="#" onclick="alert('Dashboard can be added later.'); return false;">▥ Dashboard</a>
+        <a href="#" onclick="alert('Movements can be added later.'); return false;">▦ Movements</a>
+        <a href="#" onclick="clearSearch(); return false;">⚙ Settings</a>
+      </nav>
       <button class="icon-btn" onclick="openMap()" title="Open Map">⌁</button>
     </header>
 
@@ -143,6 +230,45 @@
         <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
       </div>
     </section>
+
+    <section class="desktop-map-area">
+      <div class="desktop-hero">
+        <div class="desktop-panel">
+          <div class="desktop-panel-header">
+            <h2>WAREHOUSE 2 MAP</h2>
+            <button class="desktop-chip" onclick="openMap()">OPEN FULL MAP</button>
+          </div>
+          <div class="desktop-map-img-wrap">
+            <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+          </div>
+        </div>
+
+        <div class="desktop-stats">
+          <div class="desktop-panel desktop-stat"><strong id="desktopLoaded">0</strong><span>Items loaded</span></div>
+          <div class="desktop-panel desktop-stat"><strong id="desktopSheet">ON</strong><span>Google Sheets</span></div>
+          <div class="desktop-panel desktop-info">
+            <h3>How it works</h3>
+            <p>Search a code on the left panel. Results show location, quantity, status and notes. Use the map button to open the warehouse map.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="desktop-panel desktop-info">
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="legend-item"><span class="dot"></span>Occupied</div>
+          <div class="legend-item"><span class="dot empty"></span>Empty</div>
+          <div class="legend-item"><span class="dot low"></span>Low stock</div>
+          <div class="legend-item"><span class="dot blocked"></span>Blocked</div>
+          <div class="legend-item"><span class="dot selected"></span>Selected</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="desktop-footer">
+      <span>© 2026 PARISI - Warehouse 2 Pallet Location System</span>
+      <span class="connected">● Connected to Google Sheets</span>
+    </footer>
   </main>
 
   <nav class="bottom-nav">
@@ -225,6 +351,8 @@
         return normalizeItem(item);
       }).filter(item => Object.values(item).some(value => String(value || "").trim() !== ""));
       document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
+      const desktopLoaded = document.getElementById("desktopLoaded");
+      if (desktopLoaded) desktopLoaded.textContent = warehouseData.length.toLocaleString("en-US");
     }
 
     function searchData() {
