@@ -112,6 +112,28 @@
     .nav-item.active { color:var(--accent); }
     @media (max-width:420px){ .search-row{grid-template-columns:1fr 112px;} .logo{font-size:25px;} .result-main{grid-template-columns:1fr;} .side-panel{grid-template-columns:1fr 1fr;} }
 
+
+    .map-shell { margin-top:18px; background:#fff; color:#162431; border-radius:14px; padding:14px; border:1px solid #dce4eb; }
+    .map-shell h2 { margin:0 0 10px; font-size:16px; }
+    .map-stage { position:relative; width:100%; border-radius:10px; overflow:hidden; border:1px solid #e5e7eb; background:#fff; }
+    .map-stage img { width:100%; display:block; border:0; border-radius:0; }
+    .map-pin { position:absolute; width:18px; height:18px; border-radius:50%; background:#16a34a; border:3px solid #fff; box-shadow:0 0 0 3px rgba(22,163,74,.35), 0 8px 18px rgba(0,0,0,.28); transform:translate(-50%,-50%); z-index:3; cursor:pointer; }
+    .map-pin.multi { background:#ff8d72; box-shadow:0 0 0 3px rgba(255,141,114,.35), 0 8px 18px rgba(0,0,0,.28); }
+    .map-arrow { position:absolute; z-index:4; transform:translate(-50%,-100%); pointer-events:none; text-align:center; }
+    .map-arrow .arrow-label { background:#0d7a3b; color:white; font-weight:900; font-size:12px; padding:7px 10px; border-radius:9px; box-shadow:0 8px 18px rgba(0,0,0,.25); white-space:nowrap; }
+    .map-arrow .arrow-line { width:3px; height:42px; background:#0d7a3b; margin:0 auto; }
+    .map-arrow .arrow-head { width:0; height:0; border-left:10px solid transparent; border-right:10px solid transparent; border-top:14px solid #0d7a3b; margin:0 auto; }
+    .selected-location-card { display:none; margin-top:12px; background:#ffffff; border:2px solid rgba(22,163,74,.28); border-radius:14px; padding:14px; color:#172431; box-shadow:0 10px 24px rgba(9,20,29,.08); }
+    .selected-location-card .selected-top { display:flex; align-items:center; gap:8px; color:#16803b; font-size:13px; font-weight:900; text-transform:uppercase; margin-bottom:6px; }
+    .selected-location-card .selected-bin { font-size:34px; line-height:1; font-weight:900; color:#071019; margin-bottom:12px; }
+    .selected-meta { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; color:#4b5f6f; font-weight:800; }
+    .selected-meta b { color:#172431; }
+    .selected-table { width:100%; border-collapse:collapse; font-size:13px; overflow:hidden; border-radius:10px; }
+    .selected-table th, .selected-table td { border:1px solid #e5e7eb; padding:9px; text-align:left; }
+    .selected-table th { background:#f7fafc; color:#172431; font-weight:900; }
+    .selected-table td { color:#16803b; font-weight:900; }
+    .map-hint { color:#607383; font-size:12px; margin:8px 0 0; }
+
     /* DESKTOP VERSION - mobile layout remains unchanged under 900px */
     .desktop-nav, .desktop-hero, .desktop-panel, .desktop-map-area, .desktop-footer { display: none; }
 
@@ -202,7 +224,7 @@
       </div>
       <nav class="desktop-nav">
         <a class="active" href="index.html">⌕ Search</a>
-        <a href="map.html">♧ Map</a>
+        <a href="#" onclick="openMap(); return false;">♧ Map</a>
         <a href="#" onclick="alert('Dashboard can be added later.'); return false;">▥ Dashboard</a>
         <a href="#" onclick="alert('Movements can be added later.'); return false;">▦ Movements</a>
         <a href="#" onclick="clearSearch(); return false;">⚙ Settings</a>
@@ -225,9 +247,15 @@
 
       <div id="results" class="results"></div>
 
-      <div class="map-preview">
+      <div class="map-shell" id="mobileMapShell">
         <h2>WAREHOUSE 2 MAP</h2>
-        <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+        <div class="map-stage" id="mobileMapStage">
+          <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+          <div id="mobileMapMarkers"></div>
+          <div id="mobileMapArrow" class="map-arrow" style="display:none;"><div class="arrow-label" id="mobileArrowLabel">SELECTED</div><div class="arrow-line"></div><div class="arrow-head"></div></div>
+        </div>
+        <div id="mobileSelectedCard" class="selected-location-card"></div>
+        <p class="map-hint">Search a product code, then tap a result or marker to show the exact location.</p>
       </div>
     </section>
 
@@ -239,7 +267,12 @@
             <button class="desktop-chip" onclick="openMap()">OPEN FULL MAP</button>
           </div>
           <div class="desktop-map-img-wrap">
-            <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+            <div class="map-stage" id="desktopMapStage">
+              <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+              <div id="desktopMapMarkers"></div>
+              <div id="desktopMapArrow" class="map-arrow" style="display:none;"><div class="arrow-label" id="desktopArrowLabel">SELECTED</div><div class="arrow-line"></div><div class="arrow-head"></div></div>
+            </div>
+            <div id="desktopSelectedCard" class="selected-location-card"></div>
           </div>
         </div>
 
@@ -273,7 +306,7 @@
 
   <nav class="bottom-nav">
     <a class="nav-item active" href="index.html"><strong>⌕</strong><span>Search</span></a>
-    <a class="nav-item" href="map.html"><strong>♧</strong><span>Map</span></a>
+    <a class="nav-item" href="#" onclick="openMap(); return false;"><strong>♧</strong><span>Map</span></a>
     <a class="nav-item" href="#" onclick="alert('Dashboard can be added later.'); return false;"><strong>▥</strong><span>Dashboard</span></a>
     <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Clear</span></a>
   </nav>
@@ -345,10 +378,10 @@
       const rows = parseCSV(text);
       if (!rows.length) throw new Error("No rows found");
       const headers = rows[0].map(normalizeHeader);
-      warehouseData = rows.slice(1).map(row => {
+      warehouseData = rows.slice(1).map((row, index) => {
         const item = {};
         headers.forEach((header, index) => { item[header] = row[index] ? String(row[index]).trim() : ""; });
-        return normalizeItem(item);
+        const fixedItem = normalizeItem(item); fixedItem._uid = index + 1; return fixedItem;
       }).filter(item => Object.values(item).some(value => String(value || "").trim() !== ""));
       document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
       const desktopLoaded = document.getElementById("desktopLoaded");
@@ -359,15 +392,16 @@
       const query = document.getElementById("searchInput").value.trim().toLowerCase();
       const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
       resultsDiv.innerHTML = ""; summaryDiv.style.display = "none";
-      if (!query) { resultsDiv.innerHTML = '<div class="empty">Type a BIN, product code, street, section or status to search.</div>'; return; }
+      if (!query) { clearMapSelection(); resultsDiv.innerHTML = '<div class="empty">Type a BIN, product code, street, section or status to search.</div>'; return; }
       const results = warehouseData.filter(item => Object.values(item).some(value => String(value || "").toLowerCase().includes(query)));
-      if (results.length === 0) { resultsDiv.innerHTML = '<div class="empty">No results found.</div>'; return; }
+      if (results.length === 0) { clearMapSelection(); resultsDiv.innerHTML = '<div class="empty">No results found.</div>'; return; }
       const totalPallets = results.length;
       const totalQty = results.reduce((sum, item) => sum + parseQty(item.Qty), 0);
       document.getElementById("totalPallets").textContent = totalPallets.toLocaleString("en-US");
       document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
       summaryDiv.style.display = "grid";
       resultsDiv.innerHTML = results.map(item => createCard(item)).join("");
+      updateMapMarkers(results);
     }
 
     function parseQty(value) {
@@ -392,7 +426,7 @@
             </div>
             <div class="side-panel">
               <div class="status-box">▧<br>${safe(item.Status || 'Occupied')}</div>
-              <button class="view-map" onclick="openMap()">♧ VIEW MAP</button>
+              <button class="view-map" onclick="showItemOnMap('${safeAttr(item._uid)}'); openMap();">♧ VIEW MAP</button>
             </div>
           </div>
           <div class="details">
@@ -403,12 +437,110 @@
         </div>`;
     }
 
+
+    function splitLocation(item) {
+      const binText = String(item.BIN || `${item.Street || ''}${item.Building || ''}${item.Level || ''}${item.Side || ''}`).toUpperCase().replace(/\s+/g, "");
+      const match = binText.match(/^([A-Z])([0-9]{1,2})([0-9A-Z]*)([LR])?$/);
+      if (!match) return null;
+      const street = match[1];
+      const position = parseInt(match[2], 10);
+      const tail = match[3] || "";
+      const sideFromEnd = match[4] || "";
+      let level = item.Level || "";
+      let side = item.Side || sideFromEnd || "";
+      if (!level && tail) level = tail.replace(/[LR]$/i, "") || "";
+      if (!side && /[LR]$/i.test(tail)) side = tail.slice(-1);
+      return { bin: binText, street, position, level: String(level || "").toUpperCase(), side: String(side || "").toUpperCase(), key: street + position };
+    }
+
+    const rackX = { Z: 16.6, V: 29.6, U: 33.1, T: 43.0, S: 46.4, R: 58.7, Q: 62.3, P: 71.7, O: 75.2, N: 83.9, M: 87.5, L: 94.2 };
+    const rackYTop = 20.0;
+    const rackYBottom = 66.7;
+    function mapPoint(location) {
+      if (!location || !rackX[location.street] || !location.position) return null;
+      const pos = Math.max(1, Math.min(16, location.position));
+      const y = rackYTop + ((pos - 1) * (rackYBottom - rackYTop) / 15);
+      return { x: rackX[location.street], y };
+    }
+
+    function updateMapMarkers(items) {
+      clearMapSelection(false);
+      const valid = items.map(item => ({ item, location: splitLocation(item) })).filter(entry => mapPoint(entry.location));
+      renderMarkers(valid, "mobile");
+      renderMarkers(valid, "desktop");
+      if (valid.length) selectMapItem(valid[0].item);
+    }
+
+    function renderMarkers(entries, target) {
+      const container = document.getElementById(target + "MapMarkers");
+      if (!container) return;
+      container.innerHTML = entries.map((entry, index) => {
+        const point = mapPoint(entry.location);
+        const cls = index === 0 ? "map-pin" : "map-pin multi";
+        return `<button class="${cls}" title="${safe(entry.location.bin)}" style="left:${point.x}%; top:${point.y}%;" onclick="showItemOnMap('${safeAttr(entry.item._uid)}')"></button>`;
+      }).join("");
+    }
+
+    function showItemOnMap(uid) {
+      const item = warehouseData.find(row => String(row._uid) === String(uid));
+      if (item) selectMapItem(item);
+    }
+
+    function selectMapItem(item) {
+      const location = splitLocation(item);
+      const point = mapPoint(location);
+      if (!point) return;
+      ["mobile", "desktop"].forEach(target => {
+        const arrow = document.getElementById(target + "MapArrow");
+        const label = document.getElementById(target + "ArrowLabel");
+        const card = document.getElementById(target + "SelectedCard");
+        if (arrow) {
+          arrow.style.display = "block";
+          arrow.style.left = point.x + "%";
+          arrow.style.top = (point.y - 2.0) + "%";
+        }
+        if (label) label.textContent = location.bin;
+        if (card) {
+          card.style.display = "block";
+          card.innerHTML = selectedCardHtml(item, location);
+        }
+      });
+    }
+
+    function selectedCardHtml(item, location) {
+      return `
+        <div class="selected-top">📍 Selected Location</div>
+        <div class="selected-bin">${safe(location.bin)}</div>
+        <div class="selected-meta">
+          <div>Shelf: <b>${safe(location.street)}</b></div>
+          <div>Position: <b>${safe(location.position)}</b></div>
+          <div>Level/Side: <b>${safe(location.level)}${safe(location.side)}</b></div>
+        </div>
+        <div style="font-weight:900;margin-bottom:8px;">Product(s) in this location</div>
+        <table class="selected-table">
+          <thead><tr><th>Code</th><th>Description</th><th>Quantity</th></tr></thead>
+          <tbody><tr><td>${safe(item.CODE)}</td><td>${safe(item.Observation || item.Section || "Product")}</td><td>${safe(item.Qty)}</td></tr></tbody>
+        </table>`;
+    }
+
+    function clearMapSelection(clearPins = true) {
+      ["mobile", "desktop"].forEach(target => {
+        const arrow = document.getElementById(target + "MapArrow");
+        const card = document.getElementById(target + "SelectedCard");
+        const markers = document.getElementById(target + "MapMarkers");
+        if (arrow) arrow.style.display = "none";
+        if (card) { card.style.display = "none"; card.innerHTML = ""; }
+        if (clearPins && markers) markers.innerHTML = "";
+      });
+    }
+
+    function safeAttr(value) { return String(value || "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
     function safe(value) {
       if (!value) return "-";
       return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     }
-    function openMap() { window.location.href = "map.html"; }
-    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = ""; document.getElementById("summary").style.display = "none"; document.getElementById("searchInput").focus(); }
+    function openMap() { const area = window.innerWidth >= 900 ? document.querySelector(".desktop-map-area") : document.getElementById("mobileMapShell"); if (area) area.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = ""; document.getElementById("summary").style.display = "none"; clearMapSelection(); document.getElementById("searchInput").focus(); }
     document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
     loadData();
   </script>
