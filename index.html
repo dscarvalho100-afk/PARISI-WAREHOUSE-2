@@ -101,10 +101,23 @@
     .empty { background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; color:#dce6ec; }
     .map-preview { margin-top:18px; background:#fff; color:#162431; border-radius:14px; padding:14px; }
     .map-preview h2 { margin:0 0 10px; font-size:16px; }
+    .map-stage { position: relative; width: 100%; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; overflow: hidden; }
+    .map-stage img { width: 100%; object-fit: contain; background: #fff; display: block; }
+    .marker-layer { position:absolute; inset:0; pointer-events:auto; }
+    .connector-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible; }
+    .connector-line { stroke:#ef4444; stroke-width:1.4; stroke-dasharray:3 3; opacity:.72; }
+    .map-marker { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(239,68,68,.50); border:2px solid rgba(255,255,255,.88); box-shadow:0 0 0 4px rgba(239,68,68,.14); cursor:pointer; z-index:4; }
+    .map-hotspot { position:absolute; width:28px; height:24px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:3; }
+    .map-hotspot:hover { outline:2px solid rgba(255,141,114,.75); background:rgba(255,141,114,.12); }
+    .map-marker.selected { width:22px; height:22px; background:rgba(34,197,94,.88); box-shadow:0 0 0 7px rgba(34,197,94,.25); }
+    .marker-label { position:absolute; transform:translate(-50%,-165%); background:rgba(20,41,56,.92); color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); z-index:5; }
+    .map-callout { position:absolute; transform:translate(-50%,-50%); background:#142938; color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:9px; padding:6px 9px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 8px 18px rgba(0,0,0,.22); z-index:6; pointer-events:auto; cursor:pointer; }
     .map-preview .map-stage { border-radius:10px; border:1px solid #e5e7eb; }
     .map-preview img { width:100%; border-radius:10px; display:block; }
     .map-preview .marker-label { font-size:9px; padding:2px 5px; }
-    .map-preview .map-marker { width:14px; height:14px; border-width:2px; box-shadow:0 0 0 3px rgba(239,68,68,.25); }
+    .map-preview .map-marker { width:13px; height:13px; border-width:2px; box-shadow:0 0 0 3px rgba(239,68,68,.14); }
+    .map-preview .map-callout { font-size:10px; padding:4px 6px; }
+    .map-preview .connector-line { stroke-width:1.1; }
     .mobile-selected-box { margin-top:12px; background:#fff; color:#162431; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 520px;
@@ -177,11 +190,14 @@
       .map-stage { position: relative; width: 100%; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; overflow: hidden; }
       .map-stage img { width: 100%; max-height: 520px; object-fit: contain; background: #fff; display: block; }
       .marker-layer { position:absolute; inset:0; pointer-events:auto; }
-      .map-marker { position:absolute; width:18px; height:18px; border-radius:50%; transform:translate(-50%,-50%); background:#ef4444; border:3px solid #fff; box-shadow:0 0 0 4px rgba(239,68,68,.25); cursor:pointer; z-index:3; }
-      .map-hotspot { position:absolute; width:26px; height:22px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:2; }
+      .connector-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible; }
+      .connector-line { stroke:#ef4444; stroke-width:1.4; stroke-dasharray:3 3; opacity:.72; }
+      .map-marker { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(239,68,68,.50); border:2px solid rgba(255,255,255,.88); box-shadow:0 0 0 4px rgba(239,68,68,.14); cursor:pointer; z-index:4; }
+      .map-hotspot { position:absolute; width:28px; height:24px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:3; }
       .map-hotspot:hover { outline:2px solid rgba(255,141,114,.75); background:rgba(255,141,114,.12); }
-      .map-marker.selected { width:24px; height:24px; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.30); }
-      .marker-label { position:absolute; transform:translate(-50%,-165%); background:#142938; color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); }
+      .map-marker.selected { width:22px; height:22px; background:rgba(34,197,94,.88); box-shadow:0 0 0 7px rgba(34,197,94,.25); }
+      .marker-label { position:absolute; transform:translate(-50%,-165%); background:rgba(20,41,56,.92); color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); z-index:5; }
+      .map-callout { position:absolute; transform:translate(-50%,-50%); background:#142938; color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:9px; padding:6px 9px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 8px 18px rgba(0,0,0,.22); z-index:6; pointer-events:auto; cursor:pointer; }
       .selected-box { margin-top: 16px; padding: 18px; }
       .selected-box h3 { margin:0 0 8px; color:#142938; }
       .selected-location { font-size:32px; font-weight:900; color:#142938; margin-bottom:14px; }
@@ -320,6 +336,7 @@
     let warehouseData = [];
     let currentResults = [];
     let selectedKey = "";
+    let selectedLocationMode = false;
 
     const rackX = { Z:17.7, V:28.2, U:32.2, T:42.0, S:46.1, R:56.9, Q:60.9, P:69.4, O:73.6, N:82.3, M:86.3, L:93.0 };
     const rackYTop = 19.8;
@@ -441,14 +458,22 @@
       document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
       const desktopLoaded = document.getElementById("desktopLoaded");
       if (desktopLoaded) desktopLoaded.textContent = warehouseData.length.toLocaleString("en-US");
+      document.getElementById("results").innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>';
       updateMapMarkers();
     }
 
     function searchData() {
       const query = document.getElementById("searchInput").value.trim().toLowerCase();
       const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
-      resultsDiv.innerHTML = ""; summaryDiv.style.display = "none";
-      if (!query) { currentResults = []; selectedKey = ""; resultsDiv.innerHTML = '<div class="empty">Type a BIN, product code, street, section or status to search.</div>'; updateMapMarkers(); selectLocation(null); return; }
+      resultsDiv.innerHTML = ""; summaryDiv.style.display = "none"; selectedLocationMode = false;
+      if (!query) {
+        currentResults = [];
+        selectedKey = "";
+        resultsDiv.innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>';
+        updateMapMarkers();
+        selectLocation(null);
+        return;
+      }
       const results = warehouseData.filter(item => Object.values(item).some(value => String(value || "").toLowerCase().includes(query)));
       if (results.length === 0) { currentResults = []; selectedKey = ""; resultsDiv.innerHTML = '<div class="empty">No results found.</div>'; updateMapMarkers(); selectLocation(null); return; }
       currentResults = results;
@@ -460,6 +485,35 @@
       resultsDiv.innerHTML = results.map((item, index) => createCard(item, index)).join("");
       selectLocation(0);
       updateMapMarkers();
+    }
+
+    function isSearchActive() {
+      return document.getElementById("searchInput").value.trim() !== "";
+    }
+
+    function productsForSelectedLocation(loc) {
+      if (!loc) return [];
+      const source = isSearchActive() ? currentResults : warehouseData;
+      return source.filter(item => {
+        const itemLoc = getLocationParts(item);
+        return itemLoc && itemLoc.street === loc.street && itemLoc.position === loc.position;
+      });
+    }
+
+    function renderLocationResults(loc, products) {
+      const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
+      if (!loc) return;
+      selectedLocationMode = !isSearchActive();
+      if (!isSearchActive()) {
+        currentResults = products || [];
+        const totalQty = currentResults.reduce((sum, item) => sum + parseQty(item.Qty), 0);
+        document.getElementById("totalPallets").textContent = currentResults.length.toLocaleString("en-US");
+        document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
+        summaryDiv.style.display = "grid";
+        resultsDiv.innerHTML = currentResults.length
+          ? currentResults.map((item, index) => createCard(item, index)).join("")
+          : `<div class="empty">No products found at ${safe(loc.street + loc.position)}.</div>`;
+      }
     }
 
     function parseQty(value) {
@@ -501,12 +555,6 @@
       const layers = [document.getElementById("markerLayer"), document.getElementById("markerLayerMobile")].filter(Boolean);
       if (!layers.length) return;
 
-      const resultKeys = new Set();
-      currentResults.forEach(item => {
-        const loc = getLocationParts(item);
-        if (loc) resultKeys.add(keyForLocation(loc));
-      });
-
       const streets = Object.keys(rackX);
       const hotspots = [];
       streets.forEach(street => {
@@ -520,7 +568,7 @@
       });
 
       const seen = new Set();
-      const markers = [];
+      const markerData = [];
       currentResults.forEach(item => {
         const loc = getLocationParts(item);
         const point = pointForLocation(loc);
@@ -528,11 +576,24 @@
         const key = keyForLocation(loc);
         if (seen.has(key)) return;
         seen.add(key);
-        const selected = key === selectedKey ? " selected" : "";
-        markers.push(`<div class="marker-label" style="left:${point.x}%;top:${point.y}%">${safe(loc.street + loc.position)}</div><div class="map-marker${selected}" onclick="selectMapLocation('${key}')" style="left:${point.x}%;top:${point.y}%"></div>`);
+        markerData.push({ key, loc, point, selected: key === selectedKey });
       });
 
-      layers.forEach(layer => layer.innerHTML = hotspots.join("") + markers.join(""));
+      const lines = [];
+      const markers = [];
+      markerData.forEach((m) => {
+        const selected = m.selected ? " selected" : "";
+        markers.push(`<div class="map-marker${selected}" title="${m.key}" onclick="selectMapLocation('${m.key}')" style="left:${m.point.x}%;top:${m.point.y}%"></div>`);
+        if (m.selected) {
+          const labelX = Math.min(96, Math.max(4, m.point.x + (m.point.x > 72 ? -8 : 8)));
+          const labelY = Math.min(92, Math.max(8, m.point.y - 8));
+          lines.push(`<line class="connector-line" x1="${m.point.x}%" y1="${m.point.y}%" x2="${labelX}%" y2="${labelY}%" />`);
+          markers.push(`<div class="map-callout" onclick="selectMapLocation('${m.key}')" style="left:${labelX}%;top:${labelY}%">${safe(m.key)}</div>`);
+        }
+      });
+      const svg = lines.length ? `<svg class="connector-svg" viewBox="0 0 100 100" preserveAspectRatio="none">${lines.join("")}</svg>` : "";
+
+      layers.forEach(layer => layer.innerHTML = svg + hotspots.join("") + markers.join(""));
       document.querySelectorAll(".result-card").forEach((card, i) => {
         const loc = getLocationParts(currentResults[i] || {});
         card.classList.toggle("selected-card", !!loc && keyForLocation(loc) === selectedKey);
@@ -542,7 +603,9 @@
     function selectMapLocation(key) {
       selectedKey = String(key || "").toUpperCase();
       const loc = getLocByKey(selectedKey);
-      updateSelectedPanel(loc, findItemsAtLocation(loc));
+      const products = productsForSelectedLocation(loc);
+      updateSelectedPanel(loc, products);
+      renderLocationResults(loc, products);
       updateMapMarkers();
     }
 
@@ -550,7 +613,7 @@
       const item = typeof index === "number" ? currentResults[index] : null;
       const loc = item ? getLocationParts(item) : null;
       selectedKey = loc ? keyForLocation(loc) : "";
-      updateSelectedPanel(loc, loc ? findItemsAtLocation(loc) : []);
+      updateSelectedPanel(loc, loc ? productsForSelectedLocation(loc) : []);
     }
 
     function updateSelectedPanel(loc, products) {
@@ -566,7 +629,7 @@
       if (mobileSelectedLocation) mobileSelectedLocation.textContent = locationText;
 
       const productHtml = products && products.length
-        ? `<b>Product(s) in this location</b><table style="width:100%;border-collapse:collapse;margin-top:8px;"><thead><tr><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Code</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Description</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Qty</th></tr></thead><tbody>${products.map(p => `<tr><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;color:#15803d;">${safe(p.CODE)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Observation)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Qty)}</td></tr>`).join("")}</tbody></table>`
+        ? `<b>Product(s) in this location</b><table style="width:100%;border-collapse:collapse;margin-top:8px;"><thead><tr><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Code</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Level/Side</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Description</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Qty</th></tr></thead><tbody>${products.map(p => { const pl = getLocationParts(p); return `<tr><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;color:#15803d;">${safe(p.CODE)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;">${safe(pl ? (pl.level + pl.side) : "-")}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Observation)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Qty)}</td></tr>`; }).join("")}</tbody></table>`
         : loc ? "No product found in this location." : "";
       const selectedProducts = document.getElementById("selectedProducts");
       if (selectedProducts) selectedProducts.innerHTML = productHtml;
@@ -588,7 +651,7 @@
       return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     }
     function openFullMap() { window.open("warehouse2-map.jpg", "_blank"); }
-    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = ""; document.getElementById("summary").style.display = "none"; currentResults=[]; selectedKey=""; updateMapMarkers(); selectLocation(null); document.getElementById("searchInput").focus(); }
+    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>'; document.getElementById("summary").style.display = "none"; currentResults=[]; selectedKey=""; selectedLocationMode=false; updateMapMarkers(); selectLocation(null); document.getElementById("searchInput").focus(); }
     document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
     loadData();
   </script>
