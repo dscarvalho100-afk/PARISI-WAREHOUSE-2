@@ -101,7 +101,11 @@
     .empty { background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; color:#dce6ec; }
     .map-preview { margin-top:18px; background:#fff; color:#162431; border-radius:14px; padding:14px; }
     .map-preview h2 { margin:0 0 10px; font-size:16px; }
-    .map-preview img { width:100%; border-radius:10px; display:block; border:1px solid #e5e7eb; }
+    .map-preview .map-stage { border-radius:10px; border:1px solid #e5e7eb; }
+    .map-preview img { width:100%; border-radius:10px; display:block; }
+    .map-preview .marker-label { font-size:9px; padding:2px 5px; }
+    .map-preview .map-marker { width:14px; height:14px; border-width:2px; box-shadow:0 0 0 3px rgba(239,68,68,.25); }
+    .mobile-selected-box { margin-top:12px; background:#fff; color:#162431; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
     .bottom-nav {
       position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 520px;
       height: 74px; background: rgba(9,20,29,.97); border-top: 1px solid var(--line);
@@ -116,10 +120,10 @@
     .desktop-nav, .desktop-hero, .desktop-panel, .desktop-map-area, .desktop-footer { display: none; }
 
     @media (min-width: 900px) {
-      body { padding-bottom: 0; background: #071019; overflow-x: hidden; }
+      body { padding-bottom: 0; background: #071019; overflow: hidden; }
       .app {
         max-width: none; width: 100%; min-height: 100vh; background: #f4f7fb; border: 0;
-        display: grid; grid-template-columns: 340px 1fr; grid-template-rows: 96px 1fr 42px;
+        display: grid; grid-template-columns: 340px 1fr; grid-template-rows: 96px minmax(0,1fr) 42px; height: 100vh;
       }
       .topbar {
         grid-column: 1 / -1; padding: 0 26px; height: 96px;
@@ -172,8 +176,10 @@
       .desktop-map-img-wrap { padding: 18px; }
       .map-stage { position: relative; width: 100%; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; overflow: hidden; }
       .map-stage img { width: 100%; max-height: 520px; object-fit: contain; background: #fff; display: block; }
-      .marker-layer { position:absolute; inset:0; pointer-events:none; }
-      .map-marker { position:absolute; width:18px; height:18px; border-radius:50%; transform:translate(-50%,-50%); background:#ef4444; border:3px solid #fff; box-shadow:0 0 0 4px rgba(239,68,68,.25); }
+      .marker-layer { position:absolute; inset:0; pointer-events:auto; }
+      .map-marker { position:absolute; width:18px; height:18px; border-radius:50%; transform:translate(-50%,-50%); background:#ef4444; border:3px solid #fff; box-shadow:0 0 0 4px rgba(239,68,68,.25); cursor:pointer; z-index:3; }
+      .map-hotspot { position:absolute; width:26px; height:22px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:2; }
+      .map-hotspot:hover { outline:2px solid rgba(255,141,114,.75); background:rgba(255,141,114,.12); }
       .map-marker.selected { width:24px; height:24px; background:#22c55e; box-shadow:0 0 0 6px rgba(34,197,94,.30); }
       .marker-label { position:absolute; transform:translate(-50%,-165%); background:#142938; color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); }
       .selected-box { margin-top: 16px; padding: 18px; }
@@ -213,12 +219,12 @@
       </div>
       <nav class="desktop-nav">
         <a class="active" href="index.html">⌕ Search</a>
-        <a href="map.html">♧ Map</a>
+        <a href="#" onclick="openMap(); return false;">♧ Map</a>
         <a href="#" onclick="alert('Dashboard can be added later.'); return false;">▥ Dashboard</a>
         <a href="#" onclick="alert('Movements can be added later.'); return false;">▦ Movements</a>
         <a href="#" onclick="clearSearch(); return false;">⚙ Settings</a>
       </nav>
-      <button class="icon-btn" onclick="openMap()" title="Open Map">⌁</button>
+      <button class="icon-btn" onclick="openFullMap()" title="Open Map">⌁</button>
     </header>
 
     <section class="content">
@@ -236,9 +242,16 @@
 
       <div id="results" class="results"></div>
 
-      <div class="map-preview">
+      <div id="mobileMapPreview" class="map-preview">
         <h2>WAREHOUSE 2 MAP</h2>
-        <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+        <div class="map-stage">
+          <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+          <div id="markerLayerMobile" class="marker-layer"></div>
+        </div>
+        <div class="mobile-selected-box">
+          <b>Selected Location:</b> <span id="mobileSelectedLocation">Search a code</span>
+          <div id="mobileSelectedProducts" style="margin-top:8px;font-size:13px;color:#526676;"></div>
+        </div>
       </div>
     </section>
 
@@ -247,7 +260,7 @@
         <div class="desktop-panel">
           <div class="desktop-panel-header">
             <h2>WAREHOUSE 2 MAP</h2>
-            <button class="desktop-chip" onclick="openMap()">OPEN FULL MAP</button>
+            <button class="desktop-chip" onclick="openFullMap()">OPEN FULL MAP</button>
           </div>
           <div class="desktop-map-img-wrap">
             <div class="map-stage">
@@ -262,6 +275,7 @@
                 <div><b>Position:</b><br><span id="selectedPosition">-</span></div>
                 <div><b>Level/Side:</b><br><span id="selectedLevelSide">-</span></div>
               </div>
+              <div id="selectedProducts" style="margin-top:14px;color:#526676;font-size:13px;"></div>
             </div>
           </div>
         </div>
@@ -296,7 +310,7 @@
 
   <nav class="bottom-nav">
     <a class="nav-item active" href="index.html"><strong>⌕</strong><span>Search</span></a>
-    <a class="nav-item" href="map.html"><strong>♧</strong><span>Map</span></a>
+    <a class="nav-item" href="#" onclick="openMap(); return false;"><strong>♧</strong><span>Map</span></a>
     <a class="nav-item" href="#" onclick="alert('Dashboard can be added later.'); return false;"><strong>▥</strong><span>Dashboard</span></a>
     <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Clear</span></a>
   </nav>
@@ -337,6 +351,23 @@
       if (!loc || !rackX[loc.street]) return null;
       const y = rackYTop + ((Math.max(1, Math.min(16, loc.position)) - 1) / 15) * (rackYBottom - rackYTop);
       return { x: rackX[loc.street], y };
+    }
+
+
+    function keyForLocation(loc) { return loc ? `${loc.street}${loc.position}` : ""; }
+
+    function findItemsAtLocation(loc) {
+      if (!loc) return [];
+      return warehouseData.filter(item => {
+        const itemLoc = getLocationParts(item);
+        return itemLoc && itemLoc.street === loc.street && itemLoc.position === loc.position;
+      });
+    }
+
+    function getLocByKey(key) {
+      const match = String(key || "").toUpperCase().match(/^([A-Z])(\d{1,2})$/);
+      if (!match) return null;
+      return { street: match[1], position: parseInt(match[2], 10), level: "", side: "", bin: key };
     }
 
     function parseCSV(text) {
@@ -410,6 +441,7 @@
       document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
       const desktopLoaded = document.getElementById("desktopLoaded");
       if (desktopLoaded) desktopLoaded.textContent = warehouseData.length.toLocaleString("en-US");
+      updateMapMarkers();
     }
 
     function searchData() {
@@ -454,7 +486,7 @@
             </div>
             <div class="side-panel">
               <div class="status-box">▧<br>${safe(item.Status || 'Occupied')}</div>
-              <button class="view-map" onclick="event.stopPropagation(); selectLocation(${index}); updateMapMarkers();">♧ VIEW MAP</button>
+              <button class="view-map" onclick="event.stopPropagation(); openMap(${index});">♧ VIEW MAP</button>
             </div>
           </div>
           <div class="details">
@@ -466,45 +498,96 @@
     }
 
     function updateMapMarkers() {
-      const layer = document.getElementById("markerLayer");
-      if (!layer) return;
+      const layers = [document.getElementById("markerLayer"), document.getElementById("markerLayerMobile")].filter(Boolean);
+      if (!layers.length) return;
+
+      const resultKeys = new Set();
+      currentResults.forEach(item => {
+        const loc = getLocationParts(item);
+        if (loc) resultKeys.add(keyForLocation(loc));
+      });
+
+      const streets = Object.keys(rackX);
+      const hotspots = [];
+      streets.forEach(street => {
+        for (let position = 1; position <= 16; position++) {
+          const loc = { street, position };
+          const point = pointForLocation(loc);
+          if (!point) continue;
+          const key = `${street}${position}`;
+          hotspots.push(`<div class="map-hotspot" title="${key}" onclick="selectMapLocation('${key}')" style="left:${point.x}%;top:${point.y}%"></div>`);
+        }
+      });
+
       const seen = new Set();
       const markers = [];
       currentResults.forEach(item => {
         const loc = getLocationParts(item);
         const point = pointForLocation(loc);
         if (!loc || !point) return;
-        const key = `${loc.street}${loc.position}`;
+        const key = keyForLocation(loc);
         if (seen.has(key)) return;
         seen.add(key);
         const selected = key === selectedKey ? " selected" : "";
-        markers.push(`<div class="marker-label" style="left:${point.x}%;top:${point.y}%">${safe(loc.street + loc.position)}</div><div class="map-marker${selected}" style="left:${point.x}%;top:${point.y}%"></div>`);
+        markers.push(`<div class="marker-label" style="left:${point.x}%;top:${point.y}%">${safe(loc.street + loc.position)}</div><div class="map-marker${selected}" onclick="selectMapLocation('${key}')" style="left:${point.x}%;top:${point.y}%"></div>`);
       });
-      layer.innerHTML = markers.join("");
+
+      layers.forEach(layer => layer.innerHTML = hotspots.join("") + markers.join(""));
       document.querySelectorAll(".result-card").forEach((card, i) => {
         const loc = getLocationParts(currentResults[i] || {});
-        card.classList.toggle("selected-card", !!loc && `${loc.street}${loc.position}` === selectedKey);
+        card.classList.toggle("selected-card", !!loc && keyForLocation(loc) === selectedKey);
       });
+    }
+
+    function selectMapLocation(key) {
+      selectedKey = String(key || "").toUpperCase();
+      const loc = getLocByKey(selectedKey);
+      updateSelectedPanel(loc, findItemsAtLocation(loc));
+      updateMapMarkers();
     }
 
     function selectLocation(index) {
       const item = typeof index === "number" ? currentResults[index] : null;
       const loc = item ? getLocationParts(item) : null;
-      selectedKey = loc ? `${loc.street}${loc.position}` : "";
+      selectedKey = loc ? keyForLocation(loc) : "";
+      updateSelectedPanel(loc, loc ? findItemsAtLocation(loc) : []);
+    }
+
+    function updateSelectedPanel(loc, products) {
+      const locationText = loc ? (loc.bin || `${loc.street}${loc.position}`) : "Search a code";
       const selectedLocation = document.getElementById("selectedLocation");
       if (selectedLocation) {
-        selectedLocation.textContent = loc ? loc.bin : "Search a code";
+        selectedLocation.textContent = locationText;
         document.getElementById("selectedShelf").textContent = loc ? loc.street : "-";
         document.getElementById("selectedPosition").textContent = loc ? loc.position : "-";
-        document.getElementById("selectedLevelSide").textContent = loc ? `${loc.level}${loc.side}` : "-";
+        document.getElementById("selectedLevelSide").textContent = loc && loc.level ? `${loc.level}${loc.side}` : "-";
       }
+      const mobileSelectedLocation = document.getElementById("mobileSelectedLocation");
+      if (mobileSelectedLocation) mobileSelectedLocation.textContent = locationText;
+
+      const productHtml = products && products.length
+        ? `<b>Product(s) in this location</b><table style="width:100%;border-collapse:collapse;margin-top:8px;"><thead><tr><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Code</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Description</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Qty</th></tr></thead><tbody>${products.map(p => `<tr><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;color:#15803d;">${safe(p.CODE)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Observation)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Qty)}</td></tr>`).join("")}</tbody></table>`
+        : loc ? "No product found in this location." : "";
+      const selectedProducts = document.getElementById("selectedProducts");
+      if (selectedProducts) selectedProducts.innerHTML = productHtml;
+      const mobileSelectedProducts = document.getElementById("mobileSelectedProducts");
+      if (mobileSelectedProducts) mobileSelectedProducts.innerHTML = productHtml;
+    }
+
+    function openMap(index) {
+      if (typeof index === "number") {
+        selectLocation(index);
+        updateMapMarkers();
+      }
+      const mobileMap = document.getElementById("mobileMapPreview");
+      if (window.innerWidth < 900 && mobileMap) mobileMap.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function safe(value) {
       if (!value) return "-";
       return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     }
-    function openMap() { window.location.href = "map.html"; }
+    function openFullMap() { window.open("warehouse2-map.jpg", "_blank"); }
     function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = ""; document.getElementById("summary").style.display = "none"; currentResults=[]; selectedKey=""; updateMapMarkers(); selectLocation(null); document.getElementById("searchInput").focus(); }
     document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
     loadData();
