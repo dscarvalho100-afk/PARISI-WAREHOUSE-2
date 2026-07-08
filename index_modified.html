@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PARISI Warehouse 2</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #0d1d28;
+      --panel: #142938;
+      --panel2: #193346;
+      --line: rgba(255,255,255,.12);
+      --text: #f8fbff;
+      --muted: #9fb1bf;
+      --accent: #ffb097;
+      --accent2: #ff8d72;
+      --white: #ffffff;
+      --dark: #09141d;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, #203d50 0, var(--bg) 42%, #071019 100%);
+      color: var(--text);
+      padding-bottom: 86px;
+    }
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(17,38,52,.96), rgba(8,18,27,.98));
+      border-left: 1px solid rgba(255,255,255,.08);
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .topbar {
+      padding: 24px 18px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo {
+      font-size: 30px;
+      letter-spacing: 3px;
+      font-weight: 300;
+      color: #f2c1b2;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .title { border-left: 1px solid rgba(255,255,255,.25); padding-left: 12px; }
+    .title h1 { margin: 0; font-size: 17px; line-height: 1.1; }
+    .title p { margin: 5px 0 0; font-size: 12px; color: var(--muted); }
+    .icon-btn {
+      width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line);
+      background: rgba(255,255,255,.08); color: var(--accent); display: grid; place-items: center;
+      font-size: 22px; cursor: pointer;
+    }
+    .content { padding: 18px; }
+    .label-top { font-size: 13px; font-weight: 700; letter-spacing: .5px; margin-bottom: 10px; color: #d7e3ec; }
+    .search-row { display: grid; grid-template-columns: 1fr 128px; gap: 10px; margin-bottom: 16px; }
+    .search-box { position: relative; }
+    .search-box span { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #6d7d89; font-size: 20px; }
+    input {
+      width: 100%; height: 56px; border: 0; border-radius: 9px; outline: 0; padding: 0 15px 0 48px;
+      font-size: 18px; font-weight: 700; color: #172431; background: var(--white); box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      text-transform: uppercase;
+    }
+    button { border: 0; cursor: pointer; font-weight: 800; }
+    .btn-search {
+      height: 56px; border-radius: 9px; color: #1c2730; background: linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 8px 20px rgba(255,141,114,.22); font-size: 15px;
+    }
+    .status { color: var(--muted); font-size: 12px; min-height: 18px; margin-bottom: 12px; }
+    .summary { display:none; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+    .summary-box { background: rgba(255,255,255,.07); border: 1px solid var(--line); border-radius:14px; padding:12px; }
+    .summary-number { font-size:24px; font-weight:900; color:var(--accent); }
+    .summary-label { font-size:11px; color:var(--muted); text-transform:uppercase; font-weight:800; margin-top:3px; }
+    .results { display: grid; gap: 14px; }
+    .result-card {
+      background: linear-gradient(180deg, rgba(25,51,70,.96), rgba(17,36,50,.96));
+      border: 1px solid var(--line); border-radius: 15px; padding: 16px; box-shadow: 0 12px 28px rgba(0,0,0,.28);
+    }
+    .result-title { color: var(--accent); font-size: 13px; font-weight:900; display:flex; align-items:center; gap:8px; margin-bottom:14px; text-transform:uppercase; }
+    .result-main { display:grid; grid-template-columns:1fr 118px; gap:14px; align-items:stretch; }
+    .big-label { color:var(--muted); font-size:12px; margin-bottom:5px; text-transform: uppercase; font-weight: 800; }
+    .code { font-size:27px; font-weight:900; margin-bottom:16px; }
+    .location { font-size:30px; font-weight:900; margin-bottom:16px; }
+    .mini-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; font-size:12px; color:#d6e2ea; }
+    .mini-grid b { display:block; color:var(--muted); font-size:11px; margin-bottom:4px; text-transform: uppercase; }
+    .side-panel { display:grid; gap:10px; }
+    .status-box { border:1px solid var(--line); border-radius:11px; display:grid; place-items:center; min-height:84px; color:var(--accent); font-weight:900; text-align:center; }
+    .view-map { border-radius:11px; min-height:68px; background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#1c2730; font-size:15px; }
+    .details { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .field { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); padding:10px; border-radius:11px; font-size:14px; color:#fff; min-height:48px; }
+    .field .label { display:block; color:var(--muted); font-size:10px; text-transform:uppercase; font-weight:900; margin-bottom:4px; }
+    .field.full { grid-column:1/-1; }
+    .empty { background:rgba(255,255,255,.08); border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; color:#dce6ec; }
+    .map-preview { margin-top:18px; background:#fff; color:#162431; border-radius:14px; padding:14px; }
+    .map-preview h2 { margin:0 0 10px; font-size:16px; }
+    .map-stage { position: relative; width: 100%; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; overflow: hidden; }
+    .map-stage img { width: 100%; object-fit: contain; background: #fff; display: block; }
+    .marker-layer { position:absolute; inset:0; pointer-events:auto; }
+    .connector-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible; }
+    .connector-line { stroke:#ef4444; stroke-width:1.4; stroke-dasharray:3 3; opacity:.72; }
+    .map-marker { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(239,68,68,.50); border:2px solid rgba(255,255,255,.88); box-shadow:0 0 0 4px rgba(239,68,68,.14); cursor:pointer; z-index:4; }
+    .map-hotspot { position:absolute; width:28px; height:24px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:3; }
+    .map-hotspot:hover { outline:2px solid rgba(255,141,114,.75); background:rgba(255,141,114,.12); }
+    .map-marker.selected { width:22px; height:22px; background:rgba(34,197,94,.88); box-shadow:0 0 0 7px rgba(34,197,94,.25); }
+    .marker-label { position:absolute; transform:translate(-50%,-165%); background:rgba(20,41,56,.92); color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); z-index:5; }
+    .map-callout { position:absolute; transform:translate(-50%,-50%); background:#142938; color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:9px; padding:6px 9px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 8px 18px rgba(0,0,0,.22); z-index:6; pointer-events:auto; cursor:pointer; }
+    .map-preview .map-stage { border-radius:10px; border:1px solid #e5e7eb; }
+    .map-preview img { width:100%; border-radius:10px; display:block; }
+    .map-preview .marker-label { font-size:9px; padding:2px 5px; }
+    .map-preview .map-marker { width:13px; height:13px; border-width:2px; box-shadow:0 0 0 3px rgba(239,68,68,.14); }
+    .map-preview .map-callout { font-size:10px; padding:4px 6px; }
+    .map-preview .connector-line { stroke-width:1.1; }
+    .mobile-selected-box { margin-top:12px; background:#fff; color:#162431; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
+    .bottom-nav {
+      position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 520px;
+      height: 74px; background: rgba(9,20,29,.97); border-top: 1px solid var(--line);
+      display:grid; grid-template-columns:repeat(4,1fr); z-index:10;
+    }
+    .nav-item { display:grid; place-items:center; align-content:center; gap:3px; color:#91a5b3; font-size:11px; text-decoration:none; }
+    .nav-item strong { font-size:22px; line-height:1; }
+    .nav-item.active { color:var(--accent); }
+    @media (max-width:420px){ .search-row{grid-template-columns:1fr 112px;} .logo{font-size:25px;} .result-main{grid-template-columns:1fr;} .side-panel{grid-template-columns:1fr 1fr;} }
+
+    /* DESKTOP VERSION - mobile layout remains unchanged under 900px */
+    .desktop-nav, .desktop-hero, .desktop-panel, .desktop-map-area, .desktop-footer { display: none; }
+
+    @media (min-width: 900px) {
+      body { padding-bottom: 0; background: #071019; overflow: hidden; }
+      .app {
+        max-width: none; width: 100%; min-height: 100vh; background: #f4f7fb; border: 0;
+        display: grid; grid-template-columns: 340px 1fr; grid-template-rows: 96px minmax(0,1fr) 42px; height: 100vh;
+      }
+      .topbar {
+        grid-column: 1 / -1; padding: 0 26px; height: 96px;
+        background: linear-gradient(90deg, #071019, #0d1d28 48%, #0a1420);
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .logo { font-size: 36px; color: #fff; font-weight: 900; letter-spacing: 2px; }
+      .logo::first-letter { color: #ff8d72; }
+      .title h1 { font-size: 22px; }
+      .title p { font-size: 14px; }
+      .icon-btn { display: none; }
+      .desktop-nav { display: flex; align-items: center; gap: 30px; margin-left: auto; height: 100%; }
+      .desktop-nav a {
+        color: #b8c6d2; text-decoration: none; font-size: 13px; font-weight: 900;
+        text-transform: uppercase; letter-spacing: .4px; height: 100%; display: flex; align-items: center;
+        gap: 8px; border-bottom: 3px solid transparent;
+      }
+      .desktop-nav a.active { color: #ffb097; border-bottom-color: #ff8d72; }
+      .content {
+        grid-column: 1; grid-row: 2; padding: 22px; background: linear-gradient(180deg, #0d1d28, #071019);
+        border-right: 1px solid rgba(255,255,255,.08); overflow-y: auto;
+      }
+      .label-top { color: #edf5fa; font-size: 14px; }
+      .search-row { grid-template-columns: 1fr 108px; }
+      input { height: 48px; font-size: 16px; }
+      .btn-search { height: 48px; }
+      .map-preview { display: none; }
+      .bottom-nav { display: none; }
+      .results { max-height: none; }
+      .result-card { border-radius: 12px; padding: 16px; }
+      .result-main { grid-template-columns: 1fr; }
+      .side-panel { grid-template-columns: 1fr; }
+      .status-box { min-height: 60px; }
+      .view-map { min-height: 50px; }
+      .desktop-map-area {
+        display: block; grid-column: 2; grid-row: 2; padding: 22px; color: #172431;
+        overflow: auto; background: #f4f7fb;
+      }
+      .desktop-hero { display: grid; grid-template-columns: 1fr 240px; gap: 18px; margin-bottom: 18px; }
+      .desktop-panel {
+        display: block; background: #fff; border: 1px solid #dce4eb; border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(9,20,29,.08);
+      }
+      .desktop-panel-header {
+        padding: 16px 18px; border-bottom: 1px solid #e7edf2; display: flex;
+        align-items: center; justify-content: space-between;
+      }
+      .desktop-panel-header h2 { margin: 0; font-size: 18px; color: #142938; }
+      .desktop-chip { border: 1px solid #dce4eb; border-radius: 10px; padding: 9px 12px; font-size: 12px; font-weight: 900; color: #526676; background:#fff; }
+      .desktop-map-img-wrap { padding: 18px; }
+      .map-stage { position: relative; width: 100%; border: 1px solid #e6edf2; border-radius: 12px; background: #fff; overflow: hidden; }
+      .map-stage img { width: 100%; max-height: 520px; object-fit: contain; background: #fff; display: block; }
+      .marker-layer { position:absolute; inset:0; pointer-events:auto; }
+      .connector-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible; }
+      .connector-line { stroke:#ef4444; stroke-width:1.4; stroke-dasharray:3 3; opacity:.72; }
+      .map-marker { position:absolute; width:16px; height:16px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(239,68,68,.50); border:2px solid rgba(255,255,255,.88); box-shadow:0 0 0 4px rgba(239,68,68,.14); cursor:pointer; z-index:4; }
+      .map-hotspot { position:absolute; width:28px; height:24px; transform:translate(-50%,-50%); border-radius:6px; cursor:pointer; z-index:3; }
+      .map-hotspot:hover { outline:2px solid rgba(255,141,114,.75); background:rgba(255,141,114,.12); }
+      .map-marker.selected { width:22px; height:22px; background:rgba(34,197,94,.88); box-shadow:0 0 0 7px rgba(34,197,94,.25); }
+      .marker-label { position:absolute; transform:translate(-50%,-165%); background:rgba(20,41,56,.92); color:#fff; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,.18); z-index:5; }
+      .map-callout { position:absolute; transform:translate(-50%,-50%); background:#142938; color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:9px; padding:6px 9px; font-size:12px; font-weight:900; white-space:nowrap; box-shadow:0 8px 18px rgba(0,0,0,.22); z-index:6; pointer-events:auto; cursor:pointer; }
+      .selected-box { margin-top: 16px; padding: 18px; }
+      .selected-box h3 { margin:0 0 8px; color:#142938; }
+      .selected-location { font-size:32px; font-weight:900; color:#142938; margin-bottom:14px; }
+      .selected-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; color:#526676; font-size:13px; }
+      .selected-grid b { color:#142938; }
+      .result-card.selected-card { border-color:#ff8d72; box-shadow:0 0 0 2px rgba(255,141,114,.22), 0 12px 28px rgba(0,0,0,.28); }
+      .desktop-stats { display: grid; gap: 14px; }
+      .desktop-stat { padding: 18px; }
+      .desktop-stat strong { display:block; font-size: 30px; color:#ff8d72; margin-bottom:4px; }
+      .desktop-stat span { font-size:12px; font-weight:900; text-transform:uppercase; color:#657a89; }
+      .desktop-info { padding: 18px; display:grid; gap: 10px; }
+      .desktop-info h3 { margin:0 0 6px; color:#142938; font-size:17px; }
+      .desktop-info p { margin:0; color:#526676; font-size:14px; line-height:1.45; }
+      .legend { display:grid; grid-template-columns: repeat(5, minmax(110px,1fr)); gap:10px; margin-top:14px; }
+      .legend-item { border:1px solid #e5ebf0; border-radius:10px; padding:10px; font-size:12px; font-weight:800; color:#526676; background:#fbfcfe; display:flex; gap:8px; align-items:center; }
+      .dot { width:14px; height:14px; border-radius:4px; display:inline-block; background:#45bf5a; }
+      .dot.empty { background:#eef2f5; border:1px solid #cad4dc; }
+      .dot.low { background:#ffd166; }
+      .dot.blocked { background:#ef4444; }
+      .dot.selected { background:transparent; border:2px solid #45bf5a; }
+      .desktop-footer {
+        display:flex; grid-column: 1 / -1; grid-row: 3; align-items:center; justify-content:space-between;
+        padding:0 24px; background:#071019; color:#91a5b3; font-size:12px;
+      }
+      .connected { color:#ffb097; font-weight:900; }
+    }
+
+
+    /* LABEL PRINT MODAL */
+    .label-action { border-radius:11px; min-height:50px; background:#ffffff; color:#142938; font-size:14px; border:1px solid rgba(255,255,255,.25); }
+    .label-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}.label-modal.open{display:flex}.label-modal-card{width:min(920px,100%);max-height:92vh;overflow:auto;background:#f4f7fb;color:#172431;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}.label-modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#142938;color:#fff;position:sticky;top:0;z-index:2}.label-close{background:rgba(255,255,255,.12);color:#fff;width:38px;height:38px;border-radius:50%;font-size:22px}.label-controls{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 16px;background:#fff;border-bottom:1px solid #dce4eb}.label-controls label{font-size:11px;font-weight:900;color:#526676;text-transform:uppercase}.label-controls input,.label-controls select{width:100%;height:42px;border:1px solid #cad4dc;border-radius:8px;padding:0 10px;font-size:15px;font-weight:800;box-shadow:none;color:#172431;background:#fff;text-transform:uppercase}.label-controls .wide{grid-column:span 2}.label-actions-row{display:flex;gap:10px;padding:0 16px 14px;background:#fff}.label-print-btn,.label-refresh-btn{height:42px;border-radius:9px;padding:0 16px;font-size:14px}.label-print-btn{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#1c2730}.label-refresh-btn{background:#142938;color:#fff}.label-preview-wrap{padding:18px;display:flex;justify-content:center;background:#eef3f7}
+    #printArea{background:#fff;color:#000;width:794px;min-height:1040px;padding:0;font-family:Arial,Helvetica,sans-serif}.label-sheet{width:100%;background:#fff;padding:0 20px}.standard-label{height:330px;border-bottom:2px solid #ddd;padding:14px 22px 8px;page-break-inside:avoid;break-inside:avoid}.standard-top{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:end}.standard-black-title{background:#111;color:#fff;font-size:22px;font-weight:900;line-height:30px;padding:0 7px;text-transform:uppercase}.standard-date-value{font-size:42px;font-weight:900;line-height:48px}.standard-cont-title{font-size:23px;font-weight:900;text-align:center}.standard-cont-value{font-size:33px;font-weight:900;text-align:center}.standard-code-area{margin-top:32px;display:grid;grid-template-columns:1fr 105px;gap:14px;align-items:end}.standard-code-title{text-align:center;font-size:26px;font-weight:900}.standard-code-value{text-align:center;font-size:78px;line-height:82px;font-weight:900;letter-spacing:.5px}.standard-qty-title{text-align:center;font-size:20px;font-weight:900}.standard-qty-value{text-align:center;font-size:32px;font-weight:900;margin-top:8px}.bath-label-copy{height:370px;margin:0 18px 26px;border:2px solid #111;padding:24px;box-sizing:border-box;page-break-inside:avoid}.bath-top{display:grid;grid-template-columns:1fr 1fr;align-items:start;border-bottom:3px solid #111;padding-bottom:12px}.bath-model{font-size:42px;font-weight:900}.bath-date{text-align:right;font-size:21px;font-weight:900}.bath-container{font-size:25px;margin-top:4px}.bath-code-title{font-size:28px;font-weight:900;margin-top:32px}.bath-code-main{font-size:60px;line-height:68px;font-weight:900;margin-top:10px}.bath-bottom{display:grid;grid-template-columns:1fr 1fr;margin-top:45px;font-size:21px;font-weight:900}.bath-bottom div:last-child{text-align:right}
+    @media(max-width:700px){.label-controls{grid-template-columns:1fr 1fr}.label-controls .wide{grid-column:1/-1}#printArea{width:100%;min-height:auto}.standard-label{height:300px;padding:10px}.standard-black-title{font-size:18px}.standard-date-value{font-size:34px}.standard-cont-title{font-size:18px}.standard-cont-value{font-size:25px}.standard-code-value{font-size:52px}.bath-label-copy{height:260px;margin:0 8px 14px}.bath-model{font-size:32px}.bath-code-main{font-size:42px}.bath-bottom{margin-top:25px}}
+    @media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{position:absolute;left:0;top:0;width:100%;min-height:auto}.label-modal,.label-modal-card,.label-preview-wrap{display:block!important;background:#fff!important;padding:0!important;margin:0!important;box-shadow:none!important;max-height:none!important;overflow:visible!important}.label-modal-header,.label-controls,.label-actions-row{display:none!important}@page{size:A4 portrait;margin:10mm}}
+
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">PARISI</div>
+        <div class="title"><h1>Warehouse 2</h1><p>Pallet Location System</p></div>
+      </div>
+      <nav class="desktop-nav">
+        <a class="active" href="index.html">⌕ Search</a>
+        <a href="#" onclick="openMap(); return false;">♧ Map</a>
+        <a href="#" onclick="alert('Dashboard can be added later.'); return false;">▥ Dashboard</a>
+        <a href="#" onclick="alert('Movements can be added later.'); return false;">▦ Movements</a>
+        <a href="#" onclick="clearSearch(); return false;">⚙ Settings</a>
+      </nav>
+      <button class="icon-btn" onclick="openFullMap()" title="Open Map">⌁</button>
+    </header>
+
+    <section class="content">
+      <div class="label-top">SEARCH PRODUCT CODE</div>
+      <div class="search-row">
+        <div class="search-box"><span>⌕</span><input id="searchInput" type="text" placeholder="PA110" autocomplete="off" /></div>
+        <button class="btn-search" onclick="searchData()">SEARCH</button>
+      </div>
+      <div id="status" class="status">Loading data...</div>
+
+      <div id="summary" class="summary">
+        <div class="summary-box"><div id="totalPallets" class="summary-number">0</div><div class="summary-label">Total locations</div></div>
+        <div class="summary-box"><div id="totalQty" class="summary-number">0</div><div class="summary-label">Total quantity</div></div>
+      </div>
+
+      <div id="results" class="results"></div>
+
+      <div id="mobileMapPreview" class="map-preview">
+        <h2>WAREHOUSE 2 MAP</h2>
+        <div class="map-stage">
+          <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+          <div id="markerLayerMobile" class="marker-layer"></div>
+        </div>
+        <div class="mobile-selected-box">
+          <b>Selected Location:</b> <span id="mobileSelectedLocation">Search a code</span>
+          <div id="mobileSelectedProducts" style="margin-top:8px;font-size:13px;color:#526676;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-map-area">
+      <div class="desktop-hero">
+        <div class="desktop-panel">
+          <div class="desktop-panel-header">
+            <h2>WAREHOUSE 2 MAP</h2>
+            <button class="desktop-chip" onclick="openFullMap()">OPEN FULL MAP</button>
+          </div>
+          <div class="desktop-map-img-wrap">
+            <div class="map-stage">
+              <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+              <div id="markerLayer" class="marker-layer"></div>
+            </div>
+            <div class="desktop-panel selected-box">
+              <h3>Selected Location</h3>
+              <div class="selected-location" id="selectedLocation">Search a code</div>
+              <div class="selected-grid">
+                <div><b>Shelf:</b><br><span id="selectedShelf">-</span></div>
+                <div><b>Position:</b><br><span id="selectedPosition">-</span></div>
+                <div><b>Level/Side:</b><br><span id="selectedLevelSide">-</span></div>
+              </div>
+              <div id="selectedProducts" style="margin-top:14px;color:#526676;font-size:13px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="desktop-stats">
+          <div class="desktop-panel desktop-stat"><strong id="desktopLoaded">0</strong><span>Items loaded</span></div>
+          <div class="desktop-panel desktop-stat"><strong id="desktopSheet">ON</strong><span>Google Sheets</span></div>
+          <div class="desktop-panel desktop-info">
+            <h3>How it works</h3>
+            <p>Search a code on the left panel. Results show location, quantity, status and notes. Use the map button to open the warehouse map.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="desktop-panel desktop-info">
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="legend-item"><span class="dot"></span>Occupied</div>
+          <div class="legend-item"><span class="dot empty"></span>Empty</div>
+          <div class="legend-item"><span class="dot low"></span>Low stock</div>
+          <div class="legend-item"><span class="dot blocked"></span>Blocked</div>
+          <div class="legend-item"><span class="dot selected"></span>Selected</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="desktop-footer">
+      <span>© 2026 PARISI - Warehouse 2 Pallet Location System</span>
+      <span class="connected">● Connected to Google Sheets</span>
+    </footer>
+  </main>
+
+  <nav class="bottom-nav">
+    <a class="nav-item active" href="index.html"><strong>⌕</strong><span>Search</span></a>
+    <a class="nav-item" href="#" onclick="openMap(); return false;"><strong>♧</strong><span>Map</span></a>
+    <a class="nav-item" href="#" onclick="alert('Dashboard can be added later.'); return false;"><strong>▥</strong><span>Dashboard</span></a>
+    <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Clear</span></a>
+  </nav>
+
+
+
+  <div id="labelModal" class="label-modal" onclick="closeLabelModal(event)"><div class="label-modal-card" onclick="event.stopPropagation()"><div class="label-modal-header"><h2>Print Label</h2><button class="label-close" onclick="closeLabelModal()">×</button></div><div class="label-controls"><div><label>Template</label><select id="labelTemplate" onchange="renderLabelPreview()"><option value="PK">PK</option><option value="BATH">BATH</option></select></div><div><label>Code</label><input id="labelCode" oninput="renderLabelPreview()" /></div><div><label>QTY</label><input id="labelQty" oninput="renderLabelPreview()" /></div><div><label>Date</label><input id="labelDate" oninput="renderLabelPreview()" /></div><div><label>CONT N</label><input id="labelContainer" placeholder="TYPE HERE" oninput="renderLabelPreview()" /></div><div class="wide"><label>Bath model/name</label><input id="labelBathModel" value="ELLI II" oninput="renderLabelPreview()" /></div><div><label>CODE SIZE</label><input id="codeFontSize" type="number" value="78" oninput="renderLabelPreview()" /></div><div><label>CONT SIZE</label><input id="contFontSize" type="number" value="33" oninput="renderLabelPreview()" /></div><div><label>DATE SIZE</label><input id="dateFontSize" type="number" value="42" oninput="renderLabelPreview()" /></div><div><label>QTY SIZE</label><input id="qtyFontSize" type="number" value="32" oninput="renderLabelPreview()" /></div></div><div class="label-actions-row"><button class="label-refresh-btn" onclick="renderLabelPreview()">UPDATE PREVIEW</button><button class="label-print-btn" onclick="window.print()">PRINT LABEL</button></div><div class="label-preview-wrap"><div id="printArea"></div></div></div></div>
+
+  <script>
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/17fTtL15_RX1SuhnRLCoxdf7QQC6WDHyu4W3yQU7PVSk/gviz/tq?tqx=out:csv&sheet=Planilha1";
+    let warehouseData = [];
+    let currentResults = [];
+    let selectedKey = "";
+    let selectedLocationMode = false;
+
+    const rackX = { Z:17.7, V:28.2, U:32.2, T:42.0, S:46.1, R:56.9, Q:60.9, P:69.4, O:73.6, N:82.3, M:86.3, L:93.0 };
+    const rackYTop = 19.8;
+    const rackYBottom = 64.0;
+
+    function getLocationParts(item) {
+      const street = String(item.Street || "").trim().toUpperCase().charAt(0);
+      const position = parseInt(String(item.Building || "").replace(/\D/g, ""), 10);
+      const level = String(item.Level || "").replace(/\D/g, "");
+      const side = String(item.Side || "").trim().toUpperCase().charAt(0);
+      if (street && position) return { street, position, level, side, bin: `${street}${position}${level}${side}` };
+      return parseLocation(item.BIN);
+    }
+
+    function parseLocation(raw) {
+      const bin = String(raw || "").trim().toUpperCase().replace(/\s+/g, "");
+      const match = bin.match(/^([A-Z])(\d+)([LR])$/);
+      if (!match) return null;
+      const street = match[1];
+      const side = match[3];
+      const digits = match[2];
+      const level = digits.slice(-1);
+      const position = parseInt(digits.slice(0, -1), 10);
+      if (!street || !position || position < 1 || position > 16) return null;
+      return { street, position, level, side, bin: `${street}${position}${level}${side}` };
+    }
+
+    function pointForLocation(loc) {
+      if (!loc || !rackX[loc.street]) return null;
+      const y = rackYTop + ((Math.max(1, Math.min(16, loc.position)) - 1) / 15) * (rackYBottom - rackYTop);
+      return { x: rackX[loc.street], y };
+    }
+
+
+    function keyForLocation(loc) { return loc ? `${loc.street}${loc.position}` : ""; }
+
+    function findItemsAtLocation(loc) {
+      if (!loc) return [];
+      return warehouseData.filter(item => {
+        const itemLoc = getLocationParts(item);
+        return itemLoc && itemLoc.street === loc.street && itemLoc.position === loc.position;
+      });
+    }
+
+    function getLocByKey(key) {
+      const match = String(key || "").toUpperCase().match(/^([A-Z])(\d{1,2})$/);
+      if (!match) return null;
+      return { street: match[1], position: parseInt(match[2], 10), level: "", side: "", bin: key };
+    }
+
+    function parseCSV(text) {
+      const rows = []; let row = []; let value = ""; let insideQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i]; const next = text[i + 1];
+        if (char === '"' && insideQuotes && next === '"') { value += '"'; i++; }
+        else if (char === '"') insideQuotes = !insideQuotes;
+        else if (char === ',' && !insideQuotes) { row.push(value); value = ""; }
+        else if ((char === '\n' || char === '\r') && !insideQuotes) {
+          if (char === '\r' && next === '\n') i++;
+          row.push(value);
+          if (row.some(cell => cell.trim() !== "")) rows.push(row);
+          row = []; value = "";
+        } else value += char;
+      }
+      if (value || row.length) { row.push(value); if (row.some(cell => cell.trim() !== "")) rows.push(row); }
+      return rows;
+    }
+
+    function normalizeHeader(header) { return String(header || "").trim(); }
+
+    function normalizeItem(item) {
+      const fixed = {};
+      Object.keys(item).forEach(key => fixed[key.trim()] = item[key]);
+      fixed.BIN = fixed.BIN || fixed.Bin || fixed.bin || "";
+      fixed.Street = fixed.Street || fixed.street || "";
+      fixed.Building = fixed.Building || fixed.building || "";
+      fixed.Level = fixed.Level || fixed.level || "";
+      fixed.Side = fixed.Side || fixed.side || "";
+      fixed.CODE = fixed.CODE || fixed.Code || fixed.code || "";
+      fixed.Qty = fixed.Qty || fixed.QTY || fixed.Quantity || fixed.quantity || "";
+      fixed.Section = fixed.Section || fixed.section || "";
+      fixed.Status = fixed.Status || fixed.status || "";
+      fixed.Observation = fixed.Observation || fixed.Notes || fixed.notes || "";
+      return fixed;
+    }
+
+    function loadData() {
+      const cacheBuster = new Date().getTime();
+      fetch(GOOGLE_SHEET_CSV_URL + "&v=" + cacheBuster)
+        .then(response => {
+          if (!response.ok) throw new Error("Could not load Google Sheets data");
+          return response.text();
+        })
+        .then(loadRowsFromCsv)
+        .catch(error => {
+          console.warn("Google Sheets failed, trying local data.csv", error);
+          fetch("data.csv?v=" + cacheBuster)
+            .then(response => {
+              if (!response.ok) throw new Error("Could not load data.csv");
+              return response.text();
+            })
+            .then(loadRowsFromCsv)
+            .catch(finalError => {
+              document.getElementById("status").textContent = "Error loading data. Please check Google Sheets or data.csv.";
+              console.error(finalError);
+            });
+        });
+    }
+
+    function loadRowsFromCsv(text) {
+      const rows = parseCSV(text);
+      if (!rows.length) throw new Error("No rows found");
+      const headers = rows[0].map(normalizeHeader);
+      warehouseData = rows.slice(1).map(row => {
+        const item = {};
+        headers.forEach((header, index) => { item[header] = row[index] ? String(row[index]).trim() : ""; });
+        return normalizeItem(item);
+      }).filter(item => Object.values(item).some(value => String(value || "").trim() !== ""));
+      document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
+      const desktopLoaded = document.getElementById("desktopLoaded");
+      if (desktopLoaded) desktopLoaded.textContent = warehouseData.length.toLocaleString("en-US");
+      document.getElementById("results").innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>';
+      updateMapMarkers();
+    }
+
+    function searchData() {
+      const query = document.getElementById("searchInput").value.trim().toLowerCase();
+      const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
+      resultsDiv.innerHTML = ""; summaryDiv.style.display = "none"; selectedLocationMode = false;
+      if (!query) {
+        currentResults = [];
+        selectedKey = "";
+        resultsDiv.innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>';
+        updateMapMarkers();
+        selectLocation(null);
+        return;
+      }
+      const results = warehouseData.filter(item => Object.values(item).some(value => String(value || "").toLowerCase().includes(query)));
+      if (results.length === 0) { currentResults = []; selectedKey = ""; resultsDiv.innerHTML = '<div class="empty">No results found.</div>'; updateMapMarkers(); selectLocation(null); return; }
+      currentResults = results;
+      const totalPallets = results.length;
+      const totalQty = results.reduce((sum, item) => sum + parseQty(item.Qty), 0);
+      document.getElementById("totalPallets").textContent = totalPallets.toLocaleString("en-US");
+      document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
+      summaryDiv.style.display = "grid";
+      resultsDiv.innerHTML = results.map((item, index) => createCard(item, index)).join("");
+      selectLocation(0);
+      updateMapMarkers();
+    }
+
+    function isSearchActive() {
+      return document.getElementById("searchInput").value.trim() !== "";
+    }
+
+    function productsForSelectedLocation(loc) {
+      if (!loc) return [];
+      const source = isSearchActive() ? currentResults : warehouseData;
+      return source.filter(item => {
+        const itemLoc = getLocationParts(item);
+        return itemLoc && itemLoc.street === loc.street && itemLoc.position === loc.position;
+      });
+    }
+
+    function renderLocationResults(loc, products) {
+      const resultsDiv = document.getElementById("results"); const summaryDiv = document.getElementById("summary");
+      if (!loc) return;
+      selectedLocationMode = !isSearchActive();
+      if (!isSearchActive()) {
+        currentResults = products || [];
+        const totalQty = currentResults.reduce((sum, item) => sum + parseQty(item.Qty), 0);
+        document.getElementById("totalPallets").textContent = currentResults.length.toLocaleString("en-US");
+        document.getElementById("totalQty").textContent = totalQty.toLocaleString("en-US");
+        summaryDiv.style.display = "grid";
+        resultsDiv.innerHTML = currentResults.length
+          ? currentResults.map((item, index) => createCard(item, index)).join("")
+          : `<div class="empty">No products found at ${safe(loc.street + loc.position)}.</div>`;
+      }
+    }
+
+    function parseQty(value) {
+      if (!value) return 0;
+      const number = parseFloat(String(value).replace(/,/g, "").replace(/[^\d.-]/g, ""));
+      return isNaN(number) ? 0 : number;
+    }
+
+    function createCard(item, index) {
+      const loc = getLocationParts(item);
+      const binRaw = loc ? loc.bin : (item.BIN || `${item.Street || ''}${item.Building || ''}${item.Level || ''}${item.Side || ''}`);
+      const bin = safe(binRaw);
+      const active = loc && `${loc.street}${loc.position}` === selectedKey ? " selected-card" : "";
+      return `
+        <div class="result-card${active}" onclick="selectLocation(${index}); updateMapMarkers();">
+          <div class="result-title">📍 Search Result</div>
+          <div class="result-main">
+            <div>
+              <div class="big-label">Code</div><div class="code">${safe(item.CODE)}</div>
+              <div class="big-label">Location</div><div class="location">${bin}</div>
+              <div class="mini-grid">
+                <div><b>Street</b>${safe(item.Street)}</div><div><b>Position</b>${safe(item.Building)}</div><div><b>Level/Side</b>${safe(item.Level)}${safe(item.Side)}</div>
+              </div>
+            </div>
+            <div class="side-panel">
+              <div class="status-box">▧<br>${safe(item.Status || 'Occupied')}</div>
+              <button class="view-map" onclick="event.stopPropagation(); openMap(${index});">♧ VIEW MAP</button>
+              <button class="label-action" onclick="event.stopPropagation(); openLabel(${index});">🏷 LABEL</button>
+            </div>
+          </div>
+          <div class="details">
+            <div class="field"><span class="label">Quantity</span>${safe(item.Qty)}</div>
+            <div class="field"><span class="label">Section</span>${safe(item.Section)}</div>
+            <div class="field full"><span class="label">Notes</span>${safe(item.Observation)}</div>
+          </div>
+        </div>`;
+    }
+
+    function updateMapMarkers() {
+      const layers = [document.getElementById("markerLayer"), document.getElementById("markerLayerMobile")].filter(Boolean);
+      if (!layers.length) return;
+
+      const streets = Object.keys(rackX);
+      const hotspots = [];
+      streets.forEach(street => {
+        for (let position = 1; position <= 16; position++) {
+          const loc = { street, position };
+          const point = pointForLocation(loc);
+          if (!point) continue;
+          const key = `${street}${position}`;
+          hotspots.push(`<div class="map-hotspot" title="${key}" onclick="selectMapLocation('${key}')" style="left:${point.x}%;top:${point.y}%"></div>`);
+        }
+      });
+
+      const seen = new Set();
+      const markerData = [];
+      currentResults.forEach(item => {
+        const loc = getLocationParts(item);
+        const point = pointForLocation(loc);
+        if (!loc || !point) return;
+        const key = keyForLocation(loc);
+        if (seen.has(key)) return;
+        seen.add(key);
+        markerData.push({ key, loc, point, selected: key === selectedKey });
+      });
+
+      const lines = [];
+      const markers = [];
+      markerData.forEach((m) => {
+        const selected = m.selected ? " selected" : "";
+        markers.push(`<div class="map-marker${selected}" title="${m.key}" onclick="selectMapLocation('${m.key}')" style="left:${m.point.x}%;top:${m.point.y}%"></div>`);
+        if (m.selected) {
+          const labelX = Math.min(96, Math.max(4, m.point.x + (m.point.x > 72 ? -8 : 8)));
+          const labelY = Math.min(92, Math.max(8, m.point.y - 8));
+          lines.push(`<line class="connector-line" x1="${m.point.x}%" y1="${m.point.y}%" x2="${labelX}%" y2="${labelY}%" />`);
+          markers.push(`<div class="map-callout" onclick="selectMapLocation('${m.key}')" style="left:${labelX}%;top:${labelY}%">${safe(m.key)}</div>`);
+        }
+      });
+      const svg = lines.length ? `<svg class="connector-svg" viewBox="0 0 100 100" preserveAspectRatio="none">${lines.join("")}</svg>` : "";
+
+      layers.forEach(layer => layer.innerHTML = svg + hotspots.join("") + markers.join(""));
+      document.querySelectorAll(".result-card").forEach((card, i) => {
+        const loc = getLocationParts(currentResults[i] || {});
+        card.classList.toggle("selected-card", !!loc && keyForLocation(loc) === selectedKey);
+      });
+    }
+
+    function selectMapLocation(key) {
+      selectedKey = String(key || "").toUpperCase();
+      const loc = getLocByKey(selectedKey);
+      const products = productsForSelectedLocation(loc);
+      updateSelectedPanel(loc, products);
+      renderLocationResults(loc, products);
+      updateMapMarkers();
+    }
+
+    function selectLocation(index) {
+      const item = typeof index === "number" ? currentResults[index] : null;
+      const loc = item ? getLocationParts(item) : null;
+      selectedKey = loc ? keyForLocation(loc) : "";
+      updateSelectedPanel(loc, loc ? productsForSelectedLocation(loc) : []);
+    }
+
+    function updateSelectedPanel(loc, products) {
+      const locationText = loc ? (loc.bin || `${loc.street}${loc.position}`) : "Search a code";
+      const selectedLocation = document.getElementById("selectedLocation");
+      if (selectedLocation) {
+        selectedLocation.textContent = locationText;
+        document.getElementById("selectedShelf").textContent = loc ? loc.street : "-";
+        document.getElementById("selectedPosition").textContent = loc ? loc.position : "-";
+        document.getElementById("selectedLevelSide").textContent = loc && loc.level ? `${loc.level}${loc.side}` : "-";
+      }
+      const mobileSelectedLocation = document.getElementById("mobileSelectedLocation");
+      if (mobileSelectedLocation) mobileSelectedLocation.textContent = locationText;
+
+      const productHtml = products && products.length
+        ? `<b>Product(s) in this location</b><table style="width:100%;border-collapse:collapse;margin-top:8px;"><thead><tr><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Code</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Level/Side</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Description</th><th style="text-align:left;border-bottom:1px solid #e5ebf0;padding:6px;">Qty</th></tr></thead><tbody>${products.map(p => { const pl = getLocationParts(p); return `<tr><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;color:#15803d;">${safe(p.CODE)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;font-weight:800;">${safe(pl ? (pl.level + pl.side) : "-")}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Observation)}</td><td style="padding:6px;border-bottom:1px solid #eef2f5;">${safe(p.Qty)}</td></tr>`; }).join("")}</tbody></table>`
+        : loc ? "No product found in this location." : "";
+      const selectedProducts = document.getElementById("selectedProducts");
+      if (selectedProducts) selectedProducts.innerHTML = productHtml;
+      const mobileSelectedProducts = document.getElementById("mobileSelectedProducts");
+      if (mobileSelectedProducts) mobileSelectedProducts.innerHTML = productHtml;
+    }
+
+
+    function todayLabelDate(){
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
+    function isBathItem(item){
+      return `${item.Section || ''} ${item.Observation || ''} ${item.CODE || ''}`.toLowerCase().includes('bath');
+    }
+
+    function openLabel(index){
+      const item = currentResults[index];
+      if (!item) return;
+      document.getElementById('labelTemplate').value = isBathItem(item) ? 'BATH' : 'PK';
+      document.getElementById('labelCode').value = String(item.CODE || '').toUpperCase();
+      document.getElementById('labelQty').value = String(item.Qty || '').toUpperCase();
+      document.getElementById('labelDate').value = todayLabelDate();
+      document.getElementById('labelContainer').value = '';
+      if (!document.getElementById('labelBathModel').value) document.getElementById('labelBathModel').value = 'ELLI II';
+      document.getElementById('labelModal').classList.add('open');
+      renderLabelPreview();
+      setTimeout(() => document.getElementById('labelContainer').focus(), 100);
+    }
+
+    function closeLabelModal(event){
+      if (event && event.target && event.target.id !== 'labelModal') return;
+      document.getElementById('labelModal').classList.remove('open');
+    }
+
+    function renderLabelPreview(){
+      const template = document.getElementById('labelTemplate').value;
+      const code = safe(document.getElementById('labelCode').value || '');
+      const qty = safe(document.getElementById('labelQty').value || '');
+      const date = safe(document.getElementById('labelDate').value || todayLabelDate());
+      const cont = safe((document.getElementById('labelContainer').value || '').toUpperCase());
+      const contDisplay = cont || '-';
+      const bathModel = safe(document.getElementById('labelBathModel').value || 'ELLI II');
+      const printArea = document.getElementById('printArea');
+      const codeSize=document.getElementById('codeFontSize')?.value||78;const contSize=document.getElementById('contFontSize')?.value||33;const dateSize=document.getElementById('dateFontSize')?.value||42;const qtySize=document.getElementById('qtyFontSize')?.value||32;
+      if (template === 'BATH') {
+        const oneBath = `<div class="bath-label-copy"><div class="bath-top"><div class="bath-model">${bathModel}</div><div class="bath-date"><div>${date}</div><div class="bath-container">${contDisplay}</div></div></div><div class="bath-code-title">CODE:</div><div class="bath-code-main">${code}</div><div class="bath-bottom"><div>QTY: ${qty}</div><div>CONT N: ${contDisplay}</div></div></div>`;
+        printArea.innerHTML = `<div class="label-sheet">${oneBath}${oneBath}</div>`;
+        return;
+      }
+      const oneStandard = `<div class="standard-label"><div class="standard-top"><div><div class="standard-cont-title">CONT N:</div><div class="standard-cont-value" style="font-size:${contSize}px">${contDisplay}</div></div><div><div class="standard-black-title">DELIVERY DATE:</div><div class="standard-date-value" style="font-size:${dateSize}px">${date}</div></div></div><div class="standard-code-area"><div><div class="standard-code-title">CODE:</div><div class="standard-code-value" style="font-size:${codeSize}px;line-height:${codeSize+4}px">${code}</div></div><div><div class="standard-qty-title">QTY:</div><div class="standard-qty-value" style="font-size:${qtySize}px">${qty}</div></div></div></div>`;
+      printArea.innerHTML = `<div class="label-sheet">${oneStandard}${oneStandard}${oneStandard}</div>`;
+    }
+
+    function openMap(index) {
+      if (typeof index === "number") {
+        selectLocation(index);
+        updateMapMarkers();
+      }
+      const mobileMap = document.getElementById("mobileMapPreview");
+      if (window.innerWidth < 900 && mobileMap) mobileMap.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function safe(value) {
+      if (!value) return "-";
+      return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+    function openFullMap() { window.open("warehouse2-map.jpg", "_blank"); }
+    function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>'; document.getElementById("summary").style.display = "none"; currentResults=[]; selectedKey=""; selectedLocationMode=false; updateMapMarkers(); selectLocation(null); document.getElementById("searchInput").focus(); }
+    document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
+    loadData();
+  </script>
+</body>
+</html>
