@@ -224,6 +224,49 @@
       }
       .connected { color:#ffb097; font-weight:900; }
     }
+
+
+    /* LABEL FEATURE - added only, existing layout/search/map unchanged */
+    .label-action { border-radius:11px; min-height:50px; background:#ffffff; color:#1c2730; font-size:15px; border:2px solid var(--accent2); }
+    .label-modal { position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:9999; display:none; align-items:center; justify-content:center; padding:16px; }
+    .label-modal.open { display:flex; }
+    .label-modal-card { width:min(920px, 100%); max-height:92vh; overflow:auto; background:#f4f7fb; color:#172431; border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+    .label-modal-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; background:#142938; color:#fff; position:sticky; top:0; z-index:2; }
+    .label-modal-header h2 { margin:0; font-size:18px; }
+    .label-close { background:rgba(255,255,255,.12); color:#fff; width:38px; height:38px; border-radius:50%; font-size:22px; }
+    .label-controls { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; padding:14px 16px; background:#fff; border-bottom:1px solid #dce4eb; }
+    .label-controls label { font-size:11px; font-weight:900; color:#526676; text-transform:uppercase; }
+    .label-controls input, .label-controls select { width:100%; height:42px; border:1px solid #cad4dc; border-radius:8px; padding:0 10px; font-size:15px; font-weight:800; background:#fff; color:#172431; text-transform:uppercase; box-shadow:none; }
+    .label-controls .wide { grid-column:span 2; }
+    .label-actions-row { display:flex; gap:10px; padding:0 16px 14px; background:#fff; }
+    .label-print-btn, .label-refresh-btn { height:42px; border-radius:9px; padding:0 16px; font-size:14px; }
+    .label-print-btn { background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#1c2730; }
+    .label-refresh-btn { background:#142938; color:#fff; }
+    .label-preview-wrap { padding:18px; display:flex; justify-content:center; background:#eef3f7; }
+    #printArea { background:#fff; color:#000; width:794px; min-height:520px; padding:0; font-family:Arial, sans-serif; }
+    .pk-label { height:250px; border-bottom:2px solid #eee; padding:0 16px; page-break-inside:avoid; }
+    .pk-date-title { background:#232323; color:#000; font-size:38px; font-weight:900; line-height:42px; padding-left:4px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .pk-date-value { font-size:64px; font-weight:900; line-height:74px; }
+    .pk-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:16px; align-items:start; }
+    .pk-field-title { font-size:34px; font-weight:900; text-align:center; }
+    .pk-field-value { font-size:44px; font-weight:900; text-align:center; margin-top:10px; min-height:54px; }
+    .bath-label { min-height:520px; padding:24px 30px; border:2px solid #111; page-break-inside:avoid; }
+    .bath-top { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:center; border-bottom:3px solid #111; padding-bottom:18px; }
+    .bath-model { font-size:54px; font-weight:900; }
+    .bath-date { text-align:right; font-size:28px; font-weight:900; }
+    .bath-container { margin-top:6px; font-size:34px; font-weight:900; }
+    .bath-code-title { margin-top:42px; font-size:38px; font-weight:900; }
+    .bath-code-value { margin-top:10px; font-size:78px; font-weight:900; letter-spacing:1px; }
+    .bath-small-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:50px; font-size:26px; font-weight:900; }
+    @media (max-width:700px){ .label-controls{grid-template-columns:1fr 1fr;} .label-controls .wide{grid-column:1/-1;} #printArea{width:100%; transform:none;} .pk-date-title{font-size:25px;} .pk-date-value{font-size:42px;} .pk-field-title{font-size:24px;} .pk-field-value{font-size:30px;} .bath-model{font-size:34px;} .bath-code-value{font-size:45px;} }
+    @media print {
+      body * { visibility:hidden !important; }
+      #printArea, #printArea * { visibility:visible !important; }
+      #printArea { position:absolute; left:0; top:0; width:100%; min-height:auto; }
+      .pk-label { height:250px; }
+      @page { size:A4 portrait; margin:10mm; }
+    }
+
   </style>
 </head>
 <body>
@@ -330,6 +373,53 @@
     <a class="nav-item" href="#" onclick="alert('Dashboard can be added later.'); return false;"><strong>▥</strong><span>Dashboard</span></a>
     <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Clear</span></a>
   </nav>
+
+
+
+  <div id="labelModal" class="label-modal" onclick="closeLabelModal(event)">
+    <div class="label-modal-card" onclick="event.stopPropagation()">
+      <div class="label-modal-header">
+        <h2>Print Label</h2>
+        <button class="label-close" onclick="closeLabelModal()">×</button>
+      </div>
+      <div class="label-controls">
+        <div>
+          <label>Template</label>
+          <select id="labelTemplate" onchange="renderLabelPreview()">
+            <option value="PK">PK</option>
+            <option value="BATH">BATH</option>
+          </select>
+        </div>
+        <div>
+          <label>Code</label>
+          <input id="labelCode" oninput="renderLabelPreview()" />
+        </div>
+        <div>
+          <label>QTY</label>
+          <input id="labelQty" oninput="renderLabelPreview()" />
+        </div>
+        <div>
+          <label>Date</label>
+          <input id="labelDate" oninput="renderLabelPreview()" />
+        </div>
+        <div>
+          <label>CONT N</label>
+          <input id="labelContainer" placeholder="TYPE HERE" oninput="renderLabelPreview()" />
+        </div>
+        <div class="wide">
+          <label>Bath model/name</label>
+          <input id="labelBathModel" value="ELLI II" oninput="renderLabelPreview()" />
+        </div>
+      </div>
+      <div class="label-actions-row">
+        <button class="label-refresh-btn" onclick="renderLabelPreview()">UPDATE PREVIEW</button>
+        <button class="label-print-btn" onclick="window.print()">PRINT LABEL</button>
+      </div>
+      <div class="label-preview-wrap">
+        <div id="printArea"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/17fTtL15_RX1SuhnRLCoxdf7QQC6WDHyu4W3yQU7PVSk/gviz/tq?tqx=out:csv&sheet=Planilha1";
@@ -541,6 +631,7 @@
             <div class="side-panel">
               <div class="status-box">▧<br>${safe(item.Status || 'Occupied')}</div>
               <button class="view-map" onclick="event.stopPropagation(); openMap(${index});">♧ VIEW MAP</button>
+              <button class="label-action" onclick="event.stopPropagation(); openLabel(${index});">🏷 LABEL</button>
             </div>
           </div>
           <div class="details">
@@ -635,6 +726,86 @@
       if (selectedProducts) selectedProducts.innerHTML = productHtml;
       const mobileSelectedProducts = document.getElementById("mobileSelectedProducts");
       if (mobileSelectedProducts) mobileSelectedProducts.innerHTML = productHtml;
+    }
+
+
+
+    function todayLabelDate() {
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      return `${dd}/${mm}/${yyyy}`;
+    }
+
+    function isBathItem(item) {
+      const text = `${item.Section || ""} ${item.Observation || ""} ${item.CODE || ""}`.toLowerCase();
+      return text.includes("bath");
+    }
+
+    function openLabel(index) {
+      const item = currentResults[index];
+      if (!item) return;
+      const template = isBathItem(item) ? "BATH" : "PK";
+      document.getElementById("labelTemplate").value = template;
+      document.getElementById("labelCode").value = String(item.CODE || "").toUpperCase();
+      document.getElementById("labelQty").value = String(item.Qty || "").toUpperCase();
+      document.getElementById("labelDate").value = todayLabelDate();
+      document.getElementById("labelContainer").value = "";
+      if (!document.getElementById("labelBathModel").value) document.getElementById("labelBathModel").value = "ELLI II";
+      document.getElementById("labelModal").classList.add("open");
+      renderLabelPreview();
+      setTimeout(() => document.getElementById("labelContainer").focus(), 100);
+    }
+
+    function closeLabelModal(event) {
+      if (event && event.target && event.target.id !== "labelModal") return;
+      document.getElementById("labelModal").classList.remove("open");
+    }
+
+    function renderLabelPreview() {
+      const template = document.getElementById("labelTemplate").value;
+      const code = safe(document.getElementById("labelCode").value || "");
+      const qty = safe(document.getElementById("labelQty").value || "");
+      const date = safe(document.getElementById("labelDate").value || todayLabelDate());
+      const cont = safe(document.getElementById("labelContainer").value || "");
+      const bathModel = safe(document.getElementById("labelBathModel").value || "ELLI II");
+      const printArea = document.getElementById("printArea");
+
+      if (template === "BATH") {
+        printArea.innerHTML = `
+          <div class="bath-label">
+            <div class="bath-top">
+              <div class="bath-model">${bathModel}</div>
+              <div class="bath-date">
+                <div>${date}</div>
+                <div class="bath-container">${cont || "CONT N:"}</div>
+              </div>
+            </div>
+            <div class="bath-code-title">CODE:</div>
+            <div class="bath-code-value">${code}</div>
+            <div class="bath-small-grid">
+              <div>QTY: ${qty}</div>
+              <div>CONT N: ${cont}</div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const onePk = `
+        <div class="pk-label">
+          <div class="pk-date-title">DELIVERY DATE:</div>
+          <div class="pk-date-value">${date}</div>
+          <div class="pk-row">
+            <div><div class="pk-field-title">CODE:</div><div class="pk-field-value">${code}</div></div>
+            <div><div class="pk-field-title">CONT N:</div><div class="pk-field-value">${cont}</div></div>
+          </div>
+          <div class="pk-row" style="margin-top:4px;">
+            <div><div class="pk-field-title">QTY:</div><div class="pk-field-value">${qty}</div></div>
+            <div></div>
+          </div>
+        </div>`;
+      printArea.innerHTML = onePk + onePk + onePk;
     }
 
     function openMap(index) {
