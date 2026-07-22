@@ -351,9 +351,11 @@
     let selectedKey = "";
     let selectedLocationMode = false;
 
-    const rackX = { Z:10.8, V:19.1, U:23.5, T:33.4, S:37.8, R:53.0, Q:57.4, P:65.7, O:70.1, N:77.3, M:82.5, L:91.9 };
-    const rackYTop = 17.6;
-    const rackYBottom = 66.9;
+    // Coordinates calibrated to the NEW map image.
+    // X follows the letters at the top; Y follows rows 1 to 16 on the left.
+    const rackX = { Z:13.8, V:20.7, U:24.4, T:32.5, S:36.1, R:48.3, Q:51.8, P:58.6, O:61.9, N:67.7, M:71.8, L:79.2 };
+    const rackYTop = 22.0;
+    const rackYBottom = 56.8;
 
     function getLocationParts(item) {
       const street = String(item.Street || "").trim().toUpperCase().charAt(0);
