@@ -270,7 +270,7 @@
       <div id="mobileMapPreview" class="map-preview">
         <h2>WAREHOUSE 2 MAP</h2>
         <div class="map-stage">
-          <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+          <img src="warehouse2-map.jpg?v=3" alt="PARISI Warehouse 2 Map" />
           <div id="markerLayerMobile" class="marker-layer"></div>
         </div>
         <div class="mobile-selected-box">
@@ -289,7 +289,7 @@
           </div>
           <div class="desktop-map-img-wrap">
             <div class="map-stage">
-              <img src="warehouse2-map.jpg" alt="PARISI Warehouse 2 Map" />
+              <img src="warehouse2-map.jpg?v=3" alt="PARISI Warehouse 2 Map" />
               <div id="markerLayer" class="marker-layer"></div>
             </div>
             <div class="desktop-panel selected-box">
@@ -730,7 +730,7 @@
       if (!value) return "-";
       return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
     }
-    function openFullMap() { window.open("warehouse2-map.jpg", "_blank"); }
+    function openFullMap() { window.open("warehouse2-map.jpg?v=3", "_blank"); }
     function clearSearch() { document.getElementById("searchInput").value = ""; document.getElementById("results").innerHTML = '<div class="empty">Type a product code or click any rack location on the map.</div>'; document.getElementById("summary").style.display = "none"; currentResults=[]; selectedKey=""; selectedLocationMode=false; updateMapMarkers(); selectLocation(null); document.getElementById("searchInput").focus(); }
     document.getElementById("searchInput").addEventListener("keyup", function(event) { if (event.key === "Enter") searchData(); });
     loadData();
