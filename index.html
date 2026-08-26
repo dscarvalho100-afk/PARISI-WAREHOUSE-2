@@ -233,6 +233,13 @@
     @media(max-width:700px){.label-controls{grid-template-columns:1fr 1fr}.label-controls .wide{grid-column:1/-1}#printArea{width:100%;min-height:auto}.standard-label{height:300px;padding:10px}.standard-black-title{font-size:18px}.standard-date-value{font-size:34px}.standard-cont-title{font-size:18px}.standard-cont-value{font-size:25px}.standard-code-value{font-size:60px;height:110px}.bath-label-copy{height:260px;margin:0 8px 14px}.bath-model{font-size:36px}.bath-code-main{font-size:50px;line-height:56px}.bath-bottom{margin-top:20px;font-size:20px}}
     @media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{position:absolute;left:0;top:0;width:100%;min-height:auto}.label-modal,.label-modal-card,.label-preview-wrap{display:block!important;background:#fff!important;padding:0!important;margin:0!important;box-shadow:none!important;max-height:none!important;overflow:visible!important}.label-modal-header,.label-controls,.label-actions-row{display:none!important}@page{size:A4 portrait;margin:10mm}}
 
+
+    /* WAREHOUSE 1 ALERT - isolated addition */
+    .w1-alert-fab{position:fixed;right:18px;bottom:92px;z-index:9000;border:0;border-radius:999px;padding:13px 17px;background:linear-gradient(180deg,#ffd166,#ffb703);color:#172431;font-size:13px;font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.35);cursor:pointer}
+    .w1-alert-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}.w1-alert-modal.open{display:flex}.w1-alert-card{width:min(520px,100%);background:#f4f7fb;color:#172431;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45)}.w1-alert-header{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;background:#142938;color:#fff}.w1-alert-header h2{margin:0;font-size:19px}.w1-alert-close{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px}.w1-alert-body{padding:16px;display:grid;gap:12px}.w1-alert-body label{display:block;font-size:11px;font-weight:900;color:#526676;text-transform:uppercase;margin-bottom:5px}.w1-alert-body input,.w1-alert-body textarea{width:100%;border:1px solid #cad4dc;border-radius:9px;padding:11px 12px;font-size:15px;font-weight:700;color:#172431;background:#fff;box-shadow:none;text-transform:none}.w1-alert-body input{text-transform:uppercase;height:44px}.w1-alert-body textarea{min-height:92px;resize:vertical;font-family:Arial,sans-serif}.w1-alert-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.w1-alert-send{height:48px;border-radius:9px;background:linear-gradient(180deg,#ffd166,#ffb703);color:#172431;font-size:15px}.w1-alert-status{min-height:18px;font-size:12px;color:#526676}.w1-alert-status.ok{color:#15803d;font-weight:800}.w1-alert-status.error{color:#b91c1c;font-weight:800}
+    @media(min-width:900px){.w1-alert-fab{right:28px;bottom:58px}.w1-alert-card{width:560px}}
+    @media(max-width:520px){.w1-alert-grid{grid-template-columns:1fr}.w1-alert-fab{right:14px;bottom:88px;padding:12px 14px}}
+
   </style>
 </head>
 <body>
@@ -340,6 +347,27 @@
     <a class="nav-item" href="#" onclick="clearSearch(); return false;"><strong>⚙</strong><span>Clear</span></a>
   </nav>
 
+
+  <!-- WAREHOUSE 1 ALERT - isolated addition -->
+  <button class="w1-alert-fab" onclick="openW1Alert()" title="Send missing product alert">⚠ W1 ALERT</button>
+  <div id="w1AlertModal" class="w1-alert-modal" onclick="closeW1Alert(event)">
+    <div class="w1-alert-card" onclick="event.stopPropagation()">
+      <div class="w1-alert-header"><h2>Warehouse 1 - Missing Product</h2><button class="w1-alert-close" onclick="closeW1Alert()">×</button></div>
+      <div class="w1-alert-body">
+        <div class="w1-alert-grid">
+          <div><label>Your name</label><input id="w1Name" placeholder="NAME" /></div>
+          <div><label>Product code</label><input id="w1Code" placeholder="PA110" /></div>
+        </div>
+        <div class="w1-alert-grid">
+          <div><label>Location</label><input id="w1Location" placeholder="W1 / SHELF / BIN" /></div>
+          <div><label>Quantity missing</label><input id="w1Qty" placeholder="1" inputmode="numeric" /></div>
+        </div>
+        <div><label>Message</label><textarea id="w1Message" placeholder="Example: Product is missing from this location. Please check Warehouse 2."></textarea></div>
+        <button id="w1SendBtn" class="w1-alert-send" onclick="sendW1Alert()">SEND ALERT TO DENIS</button>
+        <div id="w1AlertStatus" class="w1-alert-status"></div>
+      </div>
+    </div>
+  </div>
 
 
   <div id="labelModal" class="label-modal" onclick="closeLabelModal(event)"><div class="label-modal-card" onclick="event.stopPropagation()"><div class="label-modal-header"><h2>Print Label</h2><button class="label-close" onclick="closeLabelModal()">×</button></div><div class="label-controls"><div><label>Template</label><select id="labelTemplate" onchange="renderLabelPreview()"><option value="PK">PK</option><option value="BATH">BATH</option></select></div><div><label>Code</label><input id="labelCode" oninput="renderLabelPreview()" /></div><div><label>QTY</label><input id="labelQty" oninput="renderLabelPreview()" /></div><div><label>Date</label><input id="labelDate" oninput="renderLabelPreview()" /></div><div><label>CONT N</label><input id="labelContainer" placeholder="TYPE HERE" oninput="renderLabelPreview()" /></div><div class="wide"><label>Bath model/name</label><input id="labelBathModel" value="ELLI II" oninput="renderLabelPreview()" /></div><div><label>CODE SIZE</label><input id="codeFontSize" type="number" value="88" oninput="renderLabelPreview()" /></div><div><label>CONT SIZE</label><input id="contFontSize" type="number" value="33" oninput="renderLabelPreview()" /></div><div><label>DATE SIZE</label><input id="dateFontSize" type="number" value="42" oninput="renderLabelPreview()" /></div><div><label>QTY SIZE</label><input id="qtyFontSize" type="number" value="32" oninput="renderLabelPreview()" /></div></div><div class="label-actions-row"><button class="label-refresh-btn" onclick="renderLabelPreview()">UPDATE PREVIEW</button><button class="label-print-btn" onclick="window.print()">PRINT LABEL</button></div><div class="label-preview-wrap"><div id="printArea"></div></div></div></div>
@@ -715,6 +743,84 @@
       const pkCodeTop = codeSize > 105 ? 150 : 165;
       const oneStandard = `<div class="standard-label"><div class="standard-cont-block"><div class="standard-cont-title">CONT N:</div><div class="standard-cont-value" style="font-size:${contSize}px;height:${Math.max(48, Math.round(contSize * 1.35))}px;line-height:1!important">${contDisplay}</div></div><div class="standard-date-block"><div class="standard-black-title">DELIVERY DATE:</div><div class="standard-date-value" style="font-size:${dateSize}px;height:${Math.max(54, Math.round(dateSize * 1.3))}px;line-height:1!important">${date}</div></div><div class="standard-code-title">CODE:</div><div class="standard-code-value" style="top:${pkCodeTop}px;font-size:${codeSize}px;height:${pkCodeHeight}px;line-height:1.08!important">${code}</div><div class="standard-qty-title">QTY:</div><div class="standard-qty-value" style="font-size:${qtySize}px;height:${Math.max(46, Math.round(qtySize * 1.35))}px;line-height:1!important">${qty}</div></div>`;
       printArea.innerHTML = `<div class="label-sheet">${oneStandard}${oneStandard}${oneStandard}</div>`;
+    }
+
+
+    // WAREHOUSE 1 ALERT - isolated addition. Does not change search/map/label logic.
+    const W1_ALERT_TOPIC = "parisi-wh-alerts-7755a3068462dd5e6fc77f9e";
+    const W1_ALERT_URL = "https://ntfy.sh/" + W1_ALERT_TOPIC;
+
+    function openW1Alert() {
+      const modal = document.getElementById('w1AlertModal');
+      const codeInput = document.getElementById('w1Code');
+      const locationInput = document.getElementById('w1Location');
+      const searchValue = document.getElementById('searchInput')?.value?.trim() || '';
+      if (codeInput && !codeInput.value && searchValue) codeInput.value = searchValue.toUpperCase();
+      if (locationInput && !locationInput.value && selectedKey) locationInput.value = selectedKey;
+      document.getElementById('w1AlertStatus').textContent = '';
+      modal.classList.add('open');
+      setTimeout(() => document.getElementById('w1Name').focus(), 80);
+    }
+
+    function closeW1Alert(event) {
+      if (event && event.target && event.target.id !== 'w1AlertModal') return;
+      document.getElementById('w1AlertModal').classList.remove('open');
+    }
+
+    async function sendW1Alert() {
+      const name = (document.getElementById('w1Name').value || '').trim();
+      const code = (document.getElementById('w1Code').value || '').trim().toUpperCase();
+      const location = (document.getElementById('w1Location').value || '').trim().toUpperCase();
+      const qty = (document.getElementById('w1Qty').value || '').trim();
+      const note = (document.getElementById('w1Message').value || '').trim();
+      const status = document.getElementById('w1AlertStatus');
+      const btn = document.getElementById('w1SendBtn');
+
+      if (!code && !note) {
+        status.className = 'w1-alert-status error';
+        status.textContent = 'Enter a product code or message.';
+        return;
+      }
+
+      const lines = [
+        'Warehouse 1 missing product alert',
+        name ? `From: ${name}` : 'From: Warehouse 1',
+        code ? `Code: ${code}` : '',
+        location ? `Location: ${location}` : '',
+        qty ? `Qty missing: ${qty}` : '',
+        note ? `Message: ${note}` : ''
+      ].filter(Boolean);
+
+      btn.disabled = true;
+      btn.textContent = 'SENDING...';
+      status.className = 'w1-alert-status';
+      status.textContent = 'Sending notification...';
+
+      try {
+        const response = await fetch(W1_ALERT_URL, {
+          method: 'POST',
+          headers: {
+            'Title': code ? `W1 MISSING: ${code}` : 'Warehouse 1 Alert',
+            'Priority': 'high',
+            'Tags': 'warning,package'
+          },
+          body: lines.join('\n')
+        });
+        if (!response.ok) throw new Error('Notification service returned ' + response.status);
+        status.className = 'w1-alert-status ok';
+        status.textContent = 'Alert sent successfully.';
+        document.getElementById('w1Code').value = '';
+        document.getElementById('w1Location').value = '';
+        document.getElementById('w1Qty').value = '';
+        document.getElementById('w1Message').value = '';
+      } catch (error) {
+        console.error('W1 alert failed', error);
+        status.className = 'w1-alert-status error';
+        status.textContent = 'Could not send the alert. Check internet connection and try again.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'SEND ALERT TO DENIS';
+      }
     }
 
     function openMap(index) {
