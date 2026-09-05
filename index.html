@@ -231,7 +231,53 @@
     .label-modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9999;display:none;align-items:center;justify-content:center;padding:16px}.label-modal.open{display:flex}.label-modal-card{width:min(920px,100%);max-height:92vh;overflow:auto;background:#f4f7fb;color:#172431;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}.label-modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#142938;color:#fff;position:sticky;top:0;z-index:2}.label-close{background:rgba(255,255,255,.12);color:#fff;width:38px;height:38px;border-radius:50%;font-size:22px}.label-controls{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 16px;background:#fff;border-bottom:1px solid #dce4eb}.label-controls label{font-size:11px;font-weight:900;color:#526676;text-transform:uppercase}.label-controls input,.label-controls select{width:100%;height:42px;border:1px solid #cad4dc;border-radius:8px;padding:0 10px;font-size:15px;font-weight:800;box-shadow:none;color:#172431;background:#fff;text-transform:uppercase}.label-controls .wide{grid-column:span 2}.label-actions-row{display:flex;gap:10px;padding:0 16px 14px;background:#fff}.label-print-btn,.label-refresh-btn{height:42px;border-radius:9px;padding:0 16px;font-size:14px}.label-print-btn{background:linear-gradient(180deg,var(--accent),var(--accent2));color:#1c2730}.label-refresh-btn{background:#142938;color:#fff}.label-preview-wrap{padding:18px;display:flex;justify-content:center;background:#eef3f7}
     #printArea{background:#fff;color:#000;width:794px;min-height:1040px;padding:0;font-family:Arial,Helvetica,sans-serif}.label-sheet{width:100%;background:#fff;padding:0 20px}.standard-label{height:330px;border-bottom:2px solid #ddd;padding:0;position:relative;page-break-inside:avoid;break-inside:avoid;overflow:hidden}.standard-cont-block{position:absolute;top:18px;left:32px;width:285px;text-align:center}.standard-date-block{position:absolute;top:18px;left:405px;width:315px}.standard-black-title{background:#111;color:#fff;font-size:22px;font-weight:900;line-height:30px;padding:0 7px;text-transform:uppercase;display:inline-block;min-width:250px}.standard-date-value{font-size:42px;font-weight:900;line-height:1!important;height:54px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}.standard-cont-title{font-size:23px;font-weight:900;text-align:center}.standard-cont-value{font-size:33px;font-weight:900;text-align:center;line-height:1!important;height:48px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}.standard-code-title{position:absolute;top:122px;left:0;right:0;text-align:center;font-size:26px;font-weight:900}.standard-code-value{position:absolute;top:165px;left:28px;width:540px;height:132px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:88px;line-height:1.15!important;font-weight:900;letter-spacing:.5px;white-space:nowrap;overflow:visible;padding:10px 0}.standard-qty-title{position:absolute;top:205px;left:600px;width:95px;text-align:center;font-size:20px;font-weight:900}.standard-qty-value{position:absolute;top:238px;left:600px;width:95px;height:46px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:32px;font-weight:900;line-height:1!important;white-space:nowrap;overflow:hidden}.bath-label-copy{height:370px;margin:0 18px 26px;border:2px solid #111;padding:24px;box-sizing:border-box;page-break-inside:avoid}.bath-top{display:grid;grid-template-columns:1fr 1fr;align-items:start;border-bottom:3px solid #111;padding-bottom:12px}.bath-model{font-size:52px;font-weight:900}.bath-date{text-align:right;font-size:27px;font-weight:900}.bath-container{font-size:30px;margin-top:4px}.bath-code-title{font-size:34px;font-weight:900;margin-top:26px}.bath-code-main{font-size:78px;line-height:86px;font-weight:900;margin-top:8px;white-space:nowrap;overflow:visible}.bath-bottom{display:grid;grid-template-columns:1fr 1fr;margin-top:36px;font-size:27px;font-weight:900}.bath-bottom div:last-child{text-align:right}
     @media(max-width:700px){.label-controls{grid-template-columns:1fr 1fr}.label-controls .wide{grid-column:1/-1}#printArea{width:100%;min-height:auto}.standard-label{height:300px;padding:10px}.standard-black-title{font-size:18px}.standard-date-value{font-size:34px}.standard-cont-title{font-size:18px}.standard-cont-value{font-size:25px}.standard-code-value{font-size:60px;height:110px}.bath-label-copy{height:260px;margin:0 8px 14px}.bath-model{font-size:36px}.bath-code-main{font-size:50px;line-height:56px}.bath-bottom{margin-top:20px;font-size:20px}}
-    @media print{body *{visibility:hidden!important}#printArea,#printArea *{visibility:visible!important}#printArea{position:absolute;left:0;top:0;width:100%;min-height:auto}.label-modal,.label-modal-card,.label-preview-wrap{display:block!important;background:#fff!important;padding:0!important;margin:0!important;box-shadow:none!important;max-height:none!important;overflow:visible!important}.label-modal-header,.label-controls,.label-actions-row{display:none!important}@page{size:A4 portrait;margin:10mm}}
+    @media print{
+      html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+      body *{visibility:hidden!important}
+      #printArea,#printArea *{visibility:visible!important}
+      #printArea{
+        position:absolute!important;
+        left:0!important;
+        top:0!important;
+        width:190mm!important;
+        height:277mm!important;
+        min-height:0!important;
+        max-height:277mm!important;
+        margin:0!important;
+        padding:0!important;
+        overflow:hidden!important;
+      }
+      .label-modal,.label-modal-card,.label-preview-wrap{
+        display:block!important;
+        position:static!important;
+        width:auto!important;
+        height:auto!important;
+        min-height:0!important;
+        max-height:none!important;
+        background:#fff!important;
+        padding:0!important;
+        margin:0!important;
+        box-shadow:none!important;
+        overflow:visible!important;
+      }
+      .label-modal-header,.label-controls,.label-actions-row{display:none!important}
+      .label-sheet{
+        width:190mm!important;
+        height:277mm!important;
+        min-height:0!important;
+        max-height:277mm!important;
+        margin:0!important;
+        padding:0!important;
+        overflow:hidden!important;
+        page-break-after:avoid!important;
+        break-after:avoid-page!important;
+      }
+      .standard-label,.bath-label-copy{
+        page-break-inside:avoid!important;
+        break-inside:avoid-page!important;
+      }
+      @page{size:A4 portrait;margin:10mm}
+    }
 
 
     /* WAREHOUSE 1 ALERT - isolated addition */
