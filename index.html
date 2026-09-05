@@ -240,6 +240,27 @@
     @media(min-width:900px){.w1-alert-fab{right:28px;bottom:58px}.w1-alert-card{width:560px}}
     @media(max-width:520px){.w1-alert-grid{grid-template-columns:1fr}.w1-alert-fab{right:14px;bottom:88px;padding:12px 14px}}
 
+
+    /* STOCK MOVEMENT / QR SCANNER - isolated addition */
+    .stock-fab{position:fixed;left:18px;bottom:92px;z-index:9000;border:0;border-radius:999px;padding:13px 17px;background:linear-gradient(180deg,#9ee6b8,#55c985);color:#10231a;font-size:13px;font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.35);cursor:pointer}
+    .stock-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10020;display:none;align-items:center;justify-content:center;padding:14px}.stock-modal.open{display:flex}
+    .stock-card{width:min(620px,100%);max-height:94vh;overflow:auto;background:#f4f7fb;color:#172431;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+    .stock-header{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;padding:15px 17px;background:#142938;color:#fff}
+    .stock-header h2{margin:0;font-size:19px}.stock-close{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px}
+    .stock-body{padding:16px;display:grid;gap:13px}.stock-step{background:#fff;border:1px solid #dce4eb;border-radius:13px;padding:13px}
+    .stock-step h3{margin:0 0 9px;font-size:14px;color:#142938}.stock-help{font-size:12px;color:#607585;line-height:1.45;margin-bottom:10px}
+    .stock-row{display:grid;grid-template-columns:1fr auto;gap:9px}.stock-input{height:46px!important;padding:0 12px!important;border:1px solid #cad4dc!important;border-radius:9px!important;box-shadow:none!important;font-size:16px!important;text-transform:uppercase}
+    .stock-scan,.stock-action{height:46px;border-radius:9px;padding:0 14px;font-size:13px}.stock-scan{background:#142938;color:#fff}.stock-action{background:linear-gradient(180deg,#9ee6b8,#55c985);color:#10231a}
+    .stock-action.danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}.stock-action.secondary{background:#e8eef3;color:#243746}
+    .stock-list{display:grid;gap:8px;margin-top:10px}.stock-pallet{width:100%;text-align:left;border:1px solid #dce4eb;border-radius:10px;background:#fbfdff;padding:11px;color:#172431}
+    .stock-pallet.selected{border-color:#55c985;box-shadow:0 0 0 2px rgba(85,201,133,.2)}.stock-pallet b{display:block;font-size:15px}.stock-pallet span{display:block;font-size:12px;color:#607585;margin-top:3px}
+    .stock-summary{display:none;background:#ecfdf3;border:1px solid #bbf7d0;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}.stock-summary.show{display:block}
+    .stock-status{min-height:18px;font-size:12px;color:#526676}.stock-status.ok{color:#15803d;font-weight:800}.stock-status.error{color:#b91c1c;font-weight:800}
+    .stock-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .scanner-box{display:none;background:#071019;border-radius:12px;padding:10px}.scanner-box.open{display:block}.scanner-box video{width:100%;max-height:52vh;border-radius:9px;background:#000}.scanner-caption{color:#dce6ec;font-size:12px;padding:7px 2px 1px}
+    @media(min-width:900px){.stock-fab{left:28px;bottom:58px}}
+    @media(max-width:520px){.stock-fab{left:14px;bottom:88px;padding:12px 14px}.stock-actions{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
@@ -370,6 +391,42 @@
   </div>
 
 
+
+  <!-- STOCK MOVEMENT / QR SCANNER - isolated addition -->
+  <button class="stock-fab" onclick="openStockMovement()" title="Move or dispatch a pallet">▦ STOCK MOVE</button>
+  <div id="stockModal" class="stock-modal" onclick="closeStockMovement(event)">
+    <div class="stock-card" onclick="event.stopPropagation()">
+      <div class="stock-header"><h2>Stock Movement</h2><button class="stock-close" onclick="closeStockMovement()">×</button></div>
+      <div class="stock-body">
+        <div class="stock-step">
+          <h3>1. Scan or enter product code</h3>
+          <div class="stock-help">Scan a product QR such as <b>PROD:PA110</b>, or type the product code.</div>
+          <div class="stock-row"><input id="stockProductInput" class="stock-input" placeholder="PRODUCT CODE"><button class="stock-scan" onclick="startStockScanner('product')">SCAN</button></div>
+          <div id="stockPalletList" class="stock-list"></div>
+        </div>
+
+        <div class="stock-step">
+          <h3>2. Scan destination shelf</h3>
+          <div class="stock-help">Scan the QR fixed on the destination shelf, for example <b>LOC:R71L</b>.</div>
+          <div class="stock-row"><input id="stockDestinationInput" class="stock-input" placeholder="NEW LOCATION"><button class="stock-scan" onclick="startStockScanner('location')">SCAN</button></div>
+        </div>
+
+        <div id="stockScannerBox" class="scanner-box">
+          <video id="stockScannerVideo" playsinline muted></video>
+          <div id="stockScannerCaption" class="scanner-caption">Point the camera at the QR code.</div>
+          <button class="stock-action secondary" style="width:100%;margin-top:8px" onclick="stopStockScanner()">CANCEL SCANNER</button>
+        </div>
+
+        <div id="stockMoveSummary" class="stock-summary"></div>
+        <div class="stock-actions">
+          <button id="stockMoveBtn" class="stock-action" onclick="confirmStockMove()">MOVE PALLET</button>
+          <button id="stockDispatchBtn" class="stock-action danger" onclick="confirmStockDispatch()">DISPATCH / REMOVE</button>
+        </div>
+        <div id="stockStatus" class="stock-status"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="labelModal" class="label-modal" onclick="closeLabelModal(event)"><div class="label-modal-card" onclick="event.stopPropagation()"><div class="label-modal-header"><h2>Print Label</h2><button class="label-close" onclick="closeLabelModal()">×</button></div><div class="label-controls"><div><label>Template</label><select id="labelTemplate" onchange="renderLabelPreview()"><option value="PK">PK</option><option value="BATH">BATH</option></select></div><div><label>Code</label><input id="labelCode" oninput="renderLabelPreview()" /></div><div><label>QTY</label><input id="labelQty" oninput="renderLabelPreview()" /></div><div><label>Date</label><input id="labelDate" oninput="renderLabelPreview()" /></div><div><label>CONT N</label><input id="labelContainer" placeholder="TYPE HERE" oninput="renderLabelPreview()" /></div><div class="wide"><label>Bath model/name</label><input id="labelBathModel" value="ELLI II" oninput="renderLabelPreview()" /></div><div><label>CODE SIZE</label><input id="codeFontSize" type="number" value="88" oninput="renderLabelPreview()" /></div><div><label>CONT SIZE</label><input id="contFontSize" type="number" value="33" oninput="renderLabelPreview()" /></div><div><label>DATE SIZE</label><input id="dateFontSize" type="number" value="42" oninput="renderLabelPreview()" /></div><div><label>QTY SIZE</label><input id="qtyFontSize" type="number" value="32" oninput="renderLabelPreview()" /></div></div><div class="label-actions-row"><button class="label-refresh-btn" onclick="renderLabelPreview()">UPDATE PREVIEW</button><button class="label-print-btn" onclick="window.print()">PRINT LABEL</button></div><div class="label-preview-wrap"><div id="printArea"></div></div></div></div>
 
   <script>
@@ -491,10 +548,12 @@
       const rows = parseCSV(text);
       if (!rows.length) throw new Error("No rows found");
       const headers = rows[0].map(normalizeHeader);
-      warehouseData = rows.slice(1).map(row => {
+      warehouseData = rows.slice(1).map((row, rowIndex) => {
         const item = {};
         headers.forEach((header, index) => { item[header] = row[index] ? String(row[index]).trim() : ""; });
-        return normalizeItem(item);
+        const normalized = normalizeItem(item);
+        Object.defineProperty(normalized, "_sheetRow", { value: rowIndex + 2, enumerable: false, writable: false });
+        return normalized;
       }).filter(item => Object.values(item).some(value => String(value || "").trim() !== ""));
       document.getElementById("status").textContent = warehouseData.length + " items loaded successfully.";
       const desktopLoaded = document.getElementById("desktopLoaded");
@@ -750,6 +809,15 @@
     const W1_ALERT_TOPIC = "parisi-wh-alerts-7755a3068462dd5e6fc77f9e";
     const W1_ALERT_URL = "https://ntfy.sh/" + W1_ALERT_TOPIC;
 
+    // Paste the deployed Google Apps Script Web App URL here after setup.
+    // Leaving it blank keeps all existing site functions working and safely disables writes.
+    const STOCK_MOVEMENT_API_URL = "";
+
+    let stockSelectedItem = null;
+    let stockScannerStream = null;
+    let stockScannerTimer = null;
+    let stockScannerMode = null;
+
     function openW1Alert() {
       const modal = document.getElementById('w1AlertModal');
       const codeInput = document.getElementById('w1Code');
@@ -822,6 +890,228 @@
         btn.textContent = 'SEND ALERT TO DENIS';
       }
     }
+
+
+    // STOCK MOVEMENT / QR SCANNER - isolated addition.
+    // Existing search, map, labels and W1 alert remain untouched.
+    function openStockMovement() {
+      stopStockScanner();
+      stockSelectedItem = null;
+      document.getElementById('stockProductInput').value = '';
+      document.getElementById('stockDestinationInput').value = '';
+      document.getElementById('stockPalletList').innerHTML = '';
+      document.getElementById('stockStatus').className = 'stock-status';
+      document.getElementById('stockStatus').textContent = STOCK_MOVEMENT_API_URL
+        ? 'Ready.'
+        : 'Scanner is ready. Google Sheets write access still needs the Apps Script URL.';
+      updateStockSummary();
+      document.getElementById('stockModal').classList.add('open');
+      setTimeout(() => document.getElementById('stockProductInput').focus(), 80);
+    }
+
+    function closeStockMovement(event) {
+      if (event && event.target && event.target.id !== 'stockModal') return;
+      stopStockScanner();
+      document.getElementById('stockModal').classList.remove('open');
+    }
+
+    function normalizeScannedValue(raw, kind) {
+      let value = String(raw || '').trim().toUpperCase();
+      if (kind === 'product') value = value.replace(/^PROD(?:UCT)?:/, '').trim();
+      if (kind === 'location') value = value.replace(/^(LOC|LOCATION|SHELF):/, '').trim();
+      return value;
+    }
+
+    function findStockPallets(code) {
+      const wanted = String(code || '').trim().toUpperCase();
+      if (!wanted) return [];
+      return warehouseData.filter(item =>
+        String(item.CODE || '').trim().toUpperCase() === wanted &&
+        String(item.Status || '').trim().toUpperCase() !== 'DISPATCHED'
+      );
+    }
+
+    function renderStockPallets() {
+      const input = document.getElementById('stockProductInput');
+      const code = normalizeScannedValue(input.value, 'product');
+      input.value = code;
+      stockSelectedItem = null;
+      const list = document.getElementById('stockPalletList');
+      const matches = findStockPallets(code);
+      if (!code) { list.innerHTML = ''; updateStockSummary(); return; }
+      if (!matches.length) {
+        list.innerHTML = '<div class="stock-help">No active pallet/location found for this product.</div>';
+        updateStockSummary();
+        return;
+      }
+      list.innerHTML = matches.map(item => {
+        const loc = getLocationParts(item);
+        const location = loc ? loc.bin : (item.BIN || '-');
+        const idx = warehouseData.indexOf(item);
+        return `<button class="stock-pallet" data-stock-index="${idx}" onclick="selectStockPallet(${idx}, this)"><b>${safe(item.CODE)} — ${safe(location)}</b><span>Qty: ${safe(item.Qty)}${item.Observation ? ' · ' + safe(item.Observation) : ''}</span></button>`;
+      }).join('');
+      if (matches.length === 1) {
+        const idx = warehouseData.indexOf(matches[0]);
+        const btn = list.querySelector('[data-stock-index="' + idx + '"]');
+        selectStockPallet(idx, btn);
+      }
+    }
+
+    function selectStockPallet(index, button) {
+      stockSelectedItem = warehouseData[index] || null;
+      document.querySelectorAll('#stockPalletList .stock-pallet').forEach(el => el.classList.remove('selected'));
+      if (button) button.classList.add('selected');
+      updateStockSummary();
+    }
+
+    function validWarehouseLocation(value) {
+      return !!parseLocation(normalizeScannedValue(value, 'location'));
+    }
+
+    function updateStockSummary() {
+      const box = document.getElementById('stockMoveSummary');
+      const destination = normalizeScannedValue(document.getElementById('stockDestinationInput')?.value || '', 'location');
+      if (!stockSelectedItem) {
+        box.className = 'stock-summary';
+        box.innerHTML = '';
+        return;
+      }
+      const loc = getLocationParts(stockSelectedItem);
+      const current = loc ? loc.bin : (stockSelectedItem.BIN || '-');
+      box.className = 'stock-summary show';
+      box.innerHTML = `<b>Selected product:</b> ${safe(stockSelectedItem.CODE)}<br><b>Qty:</b> ${safe(stockSelectedItem.Qty)}<br><b>Current:</b> ${safe(current)}<br><b>Destination:</b> ${safe(destination || 'scan a shelf')}`;
+    }
+
+    async function startStockScanner(mode) {
+      stockScannerMode = mode;
+      const status = document.getElementById('stockStatus');
+      if (!('BarcodeDetector' in window)) {
+        status.className = 'stock-status error';
+        status.textContent = 'This browser does not support camera QR scanning. Type the code manually instead.';
+        return;
+      }
+      try {
+        const formats = await BarcodeDetector.getSupportedFormats();
+        const preferred = ['qr_code', 'code_128', 'ean_13', 'ean_8'].filter(f => formats.includes(f));
+        const detector = new BarcodeDetector({ formats: preferred.length ? preferred : formats });
+        stopStockScanner();
+        stockScannerMode = mode;
+        stockScannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+        const video = document.getElementById('stockScannerVideo');
+        video.srcObject = stockScannerStream;
+        await video.play();
+        document.getElementById('stockScannerBox').classList.add('open');
+        document.getElementById('stockScannerCaption').textContent = mode === 'product' ? 'Scan the product QR/barcode.' : 'Scan the destination shelf QR.';
+        stockScannerTimer = setInterval(async () => {
+          if (!video.videoWidth) return;
+          try {
+            const codes = await detector.detect(video);
+            if (!codes.length) return;
+            const value = normalizeScannedValue(codes[0].rawValue, mode);
+            if (mode === 'product') {
+              document.getElementById('stockProductInput').value = value;
+              renderStockPallets();
+            } else {
+              document.getElementById('stockDestinationInput').value = value;
+              updateStockSummary();
+            }
+            stopStockScanner();
+            if (navigator.vibrate) navigator.vibrate(120);
+          } catch (_) {}
+        }, 350);
+      } catch (error) {
+        console.error('Scanner failed', error);
+        status.className = 'stock-status error';
+        status.textContent = 'Camera could not be opened. Check camera permission or type the code manually.';
+        stopStockScanner();
+      }
+    }
+
+    function stopStockScanner() {
+      if (stockScannerTimer) { clearInterval(stockScannerTimer); stockScannerTimer = null; }
+      if (stockScannerStream) {
+        stockScannerStream.getTracks().forEach(track => track.stop());
+        stockScannerStream = null;
+      }
+      const video = document.getElementById('stockScannerVideo');
+      if (video) video.srcObject = null;
+      const box = document.getElementById('stockScannerBox');
+      if (box) box.classList.remove('open');
+    }
+
+    async function postStockAction(payload) {
+      if (!STOCK_MOVEMENT_API_URL) throw new Error('Apps Script URL not configured');
+      const response = await fetch(STOCK_MOVEMENT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) throw new Error(data.error || 'Update failed');
+      return data;
+    }
+
+    async function confirmStockMove() {
+      const status = document.getElementById('stockStatus');
+      if (!stockSelectedItem) {
+        status.className = 'stock-status error'; status.textContent = 'Select the pallet/location you want to move.'; return;
+      }
+      const destination = normalizeScannedValue(document.getElementById('stockDestinationInput').value, 'location');
+      if (!validWarehouseLocation(destination)) {
+        status.className = 'stock-status error'; status.textContent = 'Scan or enter a valid destination such as R71L.'; return;
+      }
+      const currentLoc = getLocationParts(stockSelectedItem);
+      const current = currentLoc ? currentLoc.bin : (stockSelectedItem.BIN || '');
+      if (!confirm(`Move ${stockSelectedItem.CODE} from ${current} to ${destination}?`)) return;
+      status.className = 'stock-status'; status.textContent = 'Updating Google Sheets...';
+      try {
+        await postStockAction({ action:'move', rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current, to:destination });
+        status.className = 'stock-status ok'; status.textContent = 'Pallet moved successfully. Reloading data...';
+        await reloadWarehouseDataAfterMovement();
+      } catch (error) {
+        console.error(error);
+        status.className = 'stock-status error'; status.textContent = error.message === 'Apps Script URL not configured'
+          ? 'Google Sheets write access is not configured yet. Use the Apps Script setup file provided with this version.'
+          : 'Could not update Google Sheets: ' + error.message;
+      }
+    }
+
+    async function confirmStockDispatch() {
+      const status = document.getElementById('stockStatus');
+      if (!stockSelectedItem) {
+        status.className = 'stock-status error'; status.textContent = 'Select the pallet/location you want to dispatch.'; return;
+      }
+      const loc = getLocationParts(stockSelectedItem);
+      const current = loc ? loc.bin : (stockSelectedItem.BIN || '');
+      if (!confirm(`DISPATCH / REMOVE ${stockSelectedItem.CODE} from ${current}? A history record will be kept.`)) return;
+      status.className = 'stock-status'; status.textContent = 'Updating Google Sheets...';
+      try {
+        await postStockAction({ action:'dispatch', rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
+        status.className = 'stock-status ok'; status.textContent = 'Product dispatched and removed from active stock. Reloading data...';
+        stockSelectedItem = null;
+        await reloadWarehouseDataAfterMovement();
+        renderStockPallets();
+      } catch (error) {
+        console.error(error);
+        status.className = 'stock-status error'; status.textContent = error.message === 'Apps Script URL not configured'
+          ? 'Google Sheets write access is not configured yet. Use the Apps Script setup file provided with this version.'
+          : 'Could not update Google Sheets: ' + error.message;
+      }
+    }
+
+    async function reloadWarehouseDataAfterMovement() {
+      return new Promise((resolve, reject) => {
+        const cacheBuster = new Date().getTime();
+        fetch(GOOGLE_SHEET_CSV_URL + '&v=' + cacheBuster)
+          .then(r => { if (!r.ok) throw new Error('Could not reload Google Sheets'); return r.text(); })
+          .then(csv => { loadRowsFromCsv(csv); resolve(); })
+          .catch(reject);
+      });
+    }
+
+    document.getElementById('stockProductInput').addEventListener('input', renderStockPallets);
+    document.getElementById('stockDestinationInput').addEventListener('input', updateStockSummary);
+
 
     function openMap(index) {
       if (typeof index === "number") {
