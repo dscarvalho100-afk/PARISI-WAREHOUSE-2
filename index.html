@@ -1077,7 +1077,7 @@
       status.className = 'stock-status';
       status.textContent = 'Assigning pallet ID in Google Sheets...';
       try {
-        await postStockAction({ action:'assignPallet', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
+        await postStockAction({ action:'assign_pallet', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
         lastGeneratedPalletId = palletId;
         status.className = 'stock-status ok';
         status.textContent = 'Pallet ID assigned successfully. Reloading data...';
@@ -1159,14 +1159,19 @@
 
     async function postStockAction(payload) {
       if (!STOCK_MOVEMENT_API_URL) throw new Error('Apps Script URL not configured');
-      const response = await fetch(STOCK_MOVEMENT_API_URL, {
+
+      // Google Apps Script Web Apps redirect POST responses to a Google domain.
+      // From GitHub Pages that redirect can be blocked by browser CORS even though
+      // the Apps Script actually received the request. no-cors lets the write reach
+      // Apps Script; the site then reloads Google Sheets to confirm the change.
+      await fetch(STOCK_MOVEMENT_API_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
       });
-      const data = await response.json();
-      if (!response.ok || !data.ok) throw new Error(data.error || 'Update failed');
-      return data;
+
+      return { ok: true, sent: true };
     }
 
     async function confirmStockMove() {
@@ -1189,7 +1194,7 @@
         return;
       }
       try {
-        await postStockAction({ action:'move', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current, to:destination });
+        await postStockAction({ action:'move_pallet', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current, to:destination });
         status.className = 'stock-status ok'; status.textContent = 'Pallet moved successfully. Reloading data...';
         await reloadWarehouseDataAfterMovement();
       } catch (error) {
