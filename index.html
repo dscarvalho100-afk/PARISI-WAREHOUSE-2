@@ -560,6 +560,7 @@
       fixed.Level = fixed.Level || fixed.level || "";
       fixed.Side = fixed.Side || fixed.side || "";
       fixed.CODE = fixed.CODE || fixed.Code || fixed.code || "";
+      fixed.PalletId = fixed.PalletId || fixed['PALLET ID'] || fixed['Pallet ID'] || fixed.PALLET_ID || fixed.palletId || fixed.pallet_id || "";
       fixed.Qty = fixed.Qty || fixed.QTY || fixed.Quantity || fixed.quantity || "";
       fixed.Section = fixed.Section || fixed.section || "";
       fixed.Status = fixed.Status || fixed.status || "";
@@ -1085,6 +1086,14 @@
       if (box) box.classList.remove('open');
     }
 
+    function getStockPalletId(item) {
+      if (!item) return '';
+      return String(
+        item.PalletId || item['PALLET ID'] || item['Pallet ID'] ||
+        item.PALLET_ID || item.palletId || item.pallet_id || ''
+      ).trim();
+    }
+
     async function postStockAction(payload) {
       if (!STOCK_MOVEMENT_API_URL) throw new Error('Apps Script URL not configured');
       const response = await fetch(STOCK_MOVEMENT_API_URL, {
@@ -1110,8 +1119,14 @@
       const current = currentLoc ? currentLoc.bin : (stockSelectedItem.BIN || '');
       if (!confirm(`Move ${stockSelectedItem.CODE} from ${current} to ${destination}?`)) return;
       status.className = 'stock-status'; status.textContent = 'Updating Google Sheets...';
+      const palletId = getStockPalletId(stockSelectedItem);
+      if (!palletId) {
+        status.className = 'stock-status error';
+        status.textContent = 'This row has no PALLET ID yet. Run setupWarehouse once in Apps Script, then refresh this page.';
+        return;
+      }
       try {
-        await postStockAction({ action:'move', rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current, to:destination });
+        await postStockAction({ action:'move', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current, to:destination });
         status.className = 'stock-status ok'; status.textContent = 'Pallet moved successfully. Reloading data...';
         await reloadWarehouseDataAfterMovement();
       } catch (error) {
@@ -1131,8 +1146,14 @@
       const current = loc ? loc.bin : (stockSelectedItem.BIN || '');
       if (!confirm(`DISPATCH / REMOVE ${stockSelectedItem.CODE} from ${current}? A history record will be kept.`)) return;
       status.className = 'stock-status'; status.textContent = 'Updating Google Sheets...';
+      const palletId = getStockPalletId(stockSelectedItem);
+      if (!palletId) {
+        status.className = 'stock-status error';
+        status.textContent = 'This row has no PALLET ID yet. Run setupWarehouse once in Apps Script, then refresh this page.';
+        return;
+      }
       try {
-        await postStockAction({ action:'dispatch', rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
+        await postStockAction({ action:'dispatch', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
         status.className = 'stock-status ok'; status.textContent = 'Product dispatched and removed from active stock. Reloading data...';
         stockSelectedItem = null;
         await reloadWarehouseDataAfterMovement();
