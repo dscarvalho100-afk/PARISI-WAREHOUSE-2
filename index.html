@@ -303,6 +303,7 @@
     .stock-summary{display:none;background:#ecfdf3;border:1px solid #bbf7d0;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}.stock-summary.show{display:block}
     .stock-status{min-height:18px;font-size:12px;color:#526676}.stock-status.ok{color:#15803d;font-weight:800}.stock-status.error{color:#b91c1c;font-weight:800}
     .stock-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+    .pallet-setup{display:none;background:#fff7df;border:1px solid #f4d58a;border-radius:12px;padding:12px}.pallet-setup.show{display:block}.pallet-setup-title{font-size:13px;font-weight:900;color:#7c5a00;margin-bottom:6px}.pallet-setup-help{font-size:12px;color:#6b5a2f;line-height:1.4;margin-bottom:9px}.pallet-setup-row{display:grid;grid-template-columns:1fr auto;gap:9px}.pallet-setup-row+.pallet-setup-row{margin-top:8px}.pallet-id-input{height:44px!important;padding:0 12px!important;border:1px solid #dfc36f!important;border-radius:9px!important;box-shadow:none!important;font-size:15px!important;text-transform:uppercase}.pallet-setup-btn{height:44px;border-radius:9px;padding:0 12px;font-size:12px;background:#f2c94c;color:#362d00}.pallet-setup-btn.assign{background:#142938;color:#fff}.pallet-id-note{font-size:11px;color:#7c6a35;margin-top:8px}
     .scanner-box{display:none;background:#071019;border-radius:12px;padding:10px}.scanner-box.open{display:block}.scanner-box video{width:100%;max-height:52vh;border-radius:9px;background:#000}.scanner-caption{color:#dce6ec;font-size:12px;padding:7px 2px 1px}
     @media(min-width:900px){.stock-fab{left:28px;bottom:58px}}
     @media(max-width:520px){.stock-fab{left:14px;bottom:88px;padding:12px 14px}.stock-actions{grid-template-columns:1fr}}
@@ -464,6 +465,12 @@
         </div>
 
         <div id="stockMoveSummary" class="stock-summary"></div>
+        <div id="palletSetupBox" class="pallet-setup">
+          <div class="pallet-setup-title">PALLET ID SETUP</div>
+          <div class="pallet-setup-help">This product is not linked to a pallet yet. Create a new pallet ID or type an existing pallet ID if this product is on the same physical pallet as other products.</div>
+          <div class="pallet-setup-row"><input id="palletIdInput" class="pallet-id-input" placeholder="W2-0001"><button class="pallet-setup-btn" onclick="generatePalletId()">NEW ID</button></div>
+          <div class="pallet-setup-row"><div class="pallet-id-note">Use the same ID for every product that is physically on the same pallet.</div><button id="assignPalletBtn" class="pallet-setup-btn assign" onclick="assignSelectedToPallet()">ASSIGN</button></div>
+        </div>
         <div class="stock-actions">
           <button id="stockMoveBtn" class="stock-action" onclick="confirmStockMove()">MOVE PALLET</button>
           <button id="stockDispatchBtn" class="stock-action danger" onclick="confirmStockDispatch()">DISPATCH / REMOVE</button>
@@ -858,12 +865,13 @@
 
     // Paste the deployed Google Apps Script Web App URL here after setup.
     // Leaving it blank keeps all existing site functions working and safely disables writes.
-    const STOCK_MOVEMENT_API_URL = "https://script.google.com/macros/s/AKfycbyvBN0nmNmZtNymdnCIRgmcPbr979mqd1Jzo33fLT5kidv_uDPqJ8AkPsyMWl89yILJ/exec";
+    const STOCK_MOVEMENT_API_URL = "https://script.google.com/macros/s/AKfycbxZrCwEH6zRUDjYHvZTWsfPqCD_shpvanuhqig-c9E6aGsdixf43_8OSOxC3_Sax3Y_/exec";
 
     let stockSelectedItem = null;
     let stockScannerStream = null;
     let stockScannerTimer = null;
     let stockScannerMode = null;
+    let lastGeneratedPalletId = '';
 
     function openW1Alert() {
       const modal = document.getElementById('w1AlertModal');
@@ -947,6 +955,8 @@
       document.getElementById('stockProductInput').value = '';
       document.getElementById('stockDestinationInput').value = '';
       document.getElementById('stockPalletList').innerHTML = '';
+      document.getElementById('palletIdInput').value = lastGeneratedPalletId || '';
+      document.getElementById('palletSetupBox').classList.remove('show');
       document.getElementById('stockStatus').className = 'stock-status';
       document.getElementById('stockStatus').textContent = STOCK_MOVEMENT_API_URL
         ? 'Ready.'
@@ -1017,16 +1027,69 @@
 
     function updateStockSummary() {
       const box = document.getElementById('stockMoveSummary');
+      const setupBox = document.getElementById('palletSetupBox');
       const destination = normalizeScannedValue(document.getElementById('stockDestinationInput')?.value || '', 'location');
       if (!stockSelectedItem) {
         box.className = 'stock-summary';
         box.innerHTML = '';
+        setupBox.classList.remove('show');
         return;
       }
       const loc = getLocationParts(stockSelectedItem);
       const current = loc ? loc.bin : (stockSelectedItem.BIN || '-');
+      const palletId = getStockPalletId(stockSelectedItem);
       box.className = 'stock-summary show';
-      box.innerHTML = `<b>Selected product:</b> ${safe(stockSelectedItem.CODE)}<br><b>Qty:</b> ${safe(stockSelectedItem.Qty)}<br><b>Current:</b> ${safe(current)}<br><b>Destination:</b> ${safe(destination || 'scan a shelf')}`;
+      box.innerHTML = `<b>Selected product:</b> ${safe(stockSelectedItem.CODE)}<br><b>Qty:</b> ${safe(stockSelectedItem.Qty)}<br><b>Current:</b> ${safe(current)}<br><b>Pallet ID:</b> ${safe(palletId || 'not assigned')}<br><b>Destination:</b> ${safe(destination || 'scan a shelf')}`;
+      setupBox.classList.toggle('show', !palletId);
+      if (!palletId && lastGeneratedPalletId && !document.getElementById('palletIdInput').value) {
+        document.getElementById('palletIdInput').value = lastGeneratedPalletId;
+      }
+    }
+
+    function generatePalletId() {
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const id = `W2-${String(now.getFullYear()).slice(-2)}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      lastGeneratedPalletId = id;
+      document.getElementById('palletIdInput').value = id;
+      const status = document.getElementById('stockStatus');
+      status.className = 'stock-status';
+      status.textContent = 'New pallet ID created. Press ASSIGN to link the selected product.';
+    }
+
+    async function assignSelectedToPallet() {
+      const status = document.getElementById('stockStatus');
+      if (!stockSelectedItem) {
+        status.className = 'stock-status error';
+        status.textContent = 'Select a product/location first.';
+        return;
+      }
+      const palletId = String(document.getElementById('palletIdInput').value || '').trim().toUpperCase();
+      if (!palletId) {
+        status.className = 'stock-status error';
+        status.textContent = 'Create or enter a PALLET ID first.';
+        return;
+      }
+      const loc = getLocationParts(stockSelectedItem);
+      const current = loc ? loc.bin : (stockSelectedItem.BIN || '');
+      const btn = document.getElementById('assignPalletBtn');
+      btn.disabled = true;
+      status.className = 'stock-status';
+      status.textContent = 'Assigning pallet ID in Google Sheets...';
+      try {
+        await postStockAction({ action:'assignPallet', palletId:palletId, rowNumber:stockSelectedItem._sheetRow, code:stockSelectedItem.CODE, from:current });
+        lastGeneratedPalletId = palletId;
+        status.className = 'stock-status ok';
+        status.textContent = 'Pallet ID assigned successfully. Reloading data...';
+        await reloadWarehouseDataAfterMovement();
+        renderStockPallets();
+      } catch (error) {
+        console.error(error);
+        status.className = 'stock-status error';
+        status.textContent = 'Could not assign PALLET ID: ' + error.message;
+      } finally {
+        btn.disabled = false;
+      }
     }
 
     async function startStockScanner(mode) {
@@ -1122,7 +1185,7 @@
       const palletId = getStockPalletId(stockSelectedItem);
       if (!palletId) {
         status.className = 'stock-status error';
-        status.textContent = 'This row has no PALLET ID yet. Run setupWarehouse once in Apps Script, then refresh this page.';
+        status.textContent = 'This product has no PALLET ID yet. Use PALLET ID SETUP above to create or assign one.';
         return;
       }
       try {
@@ -1149,7 +1212,7 @@
       const palletId = getStockPalletId(stockSelectedItem);
       if (!palletId) {
         status.className = 'stock-status error';
-        status.textContent = 'This row has no PALLET ID yet. Run setupWarehouse once in Apps Script, then refresh this page.';
+        status.textContent = 'This product has no PALLET ID yet. Use PALLET ID SETUP above to create or assign one.';
         return;
       }
       try {
