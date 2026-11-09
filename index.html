@@ -257,8 +257,7 @@
 
     /* Additional independent destination alerts: existing styles and features unchanged */
     .department-alert-actions{position:fixed;right:18px;bottom:150px;z-index:8999;display:flex;flex-direction:column;gap:8px}
-    .department-alert-actions button{border-radius:999px;padding:12px 16px;background:#e8f2f7;color:#142938;font-size:13px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.3)}
-    .department-alert-actions button:last-child{background:#c9f1dc}
+    .department-alert-actions button{border-radius:999px;padding:12px 16px;background:linear-gradient(180deg,#ffd166,#ffb703);color:#172431;font-size:13px;font-weight:900;box-shadow:0 10px 24px rgba(0,0,0,.35)}
     @media(min-width:900px){.department-alert-actions{right:28px;bottom:116px}}
     @media print{.department-alert-actions,.department-alert-modal{display:none!important}}
   </style>
@@ -370,7 +369,7 @@
 
 
   <!-- WAREHOUSE 1 ALERT - isolated addition -->
-  <button class="w1-alert-fab" onclick="openW1Alert()" title="Send missing product alert">⚠ W1 ALERT</button>
+  <button class="w1-alert-fab" onclick="openW1Alert()" title="Send missing product alert">⚠ W2 ALERT</button>
   <div id="w1AlertModal" class="w1-alert-modal" onclick="closeW1Alert(event)">
     <div class="w1-alert-card" onclick="event.stopPropagation()">
       <div class="w1-alert-header"><h2>Warehouse 1 - Missing Product</h2><button class="w1-alert-close" onclick="closeW1Alert()">×</button></div>
@@ -395,8 +394,8 @@
 
   <!-- Independent alert destinations. Original W1-to-W2 alert is untouched. -->
   <div class="department-alert-actions">
-    <button onclick="openDepartmentAlert('W1')">⚠ ALERT TO W1</button>
-    <button onclick="openDepartmentAlert('TAP')">⚠ ALERT TO TAP</button>
+    <button onclick="openDepartmentAlert('W1')">⚠ W1 ALERT</button>
+    <button onclick="openDepartmentAlert('TAP')">⚠ TAP ALERT</button>
   </div>
   <div id="departmentAlertModal" class="w1-alert-modal department-alert-modal" onclick="closeDepartmentAlert(event)">
     <div class="w1-alert-card" onclick="event.stopPropagation()">
