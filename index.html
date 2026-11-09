@@ -254,6 +254,13 @@
     @media(max-width:520px){.w1-alert-grid{grid-template-columns:1fr}.w1-alert-fab{right:14px;bottom:88px;padding:12px 14px}}
 
 
+
+    /* Additional independent destination alerts: existing styles and features unchanged */
+    .department-alert-actions{position:fixed;right:18px;bottom:150px;z-index:8999;display:flex;flex-direction:column;gap:8px}
+    .department-alert-actions button{border-radius:999px;padding:12px 16px;background:#e8f2f7;color:#142938;font-size:13px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+    .department-alert-actions button:last-child{background:#c9f1dc}
+    @media(min-width:900px){.department-alert-actions{right:28px;bottom:116px}}
+    @media print{.department-alert-actions,.department-alert-modal{display:none!important}}
   </style>
 </head>
 <body>
@@ -384,6 +391,25 @@
   </div>
 
 
+
+
+  <!-- Independent alert destinations. Original W1-to-W2 alert is untouched. -->
+  <div class="department-alert-actions">
+    <button onclick="openDepartmentAlert('W1')">⚠ ALERT TO W1</button>
+    <button onclick="openDepartmentAlert('TAP')">⚠ ALERT TO TAP</button>
+  </div>
+  <div id="departmentAlertModal" class="w1-alert-modal department-alert-modal" onclick="closeDepartmentAlert(event)">
+    <div class="w1-alert-card" onclick="event.stopPropagation()">
+      <div class="w1-alert-header"><h2 id="departmentAlertHeading">Send alert</h2><button class="w1-alert-close" onclick="closeDepartmentAlert()">×</button></div>
+      <div class="w1-alert-body">
+        <div class="w1-alert-grid"><div><label>Your name</label><input id="departmentName" placeholder="NAME" /></div><div><label>Product code</label><input id="departmentCode" placeholder="PA110" /></div></div>
+        <div class="w1-alert-grid"><div><label>Location</label><input id="departmentLocation" placeholder="SHELF / BIN" /></div><div><label>Quantity</label><input id="departmentQty" placeholder="1" inputmode="numeric" /></div></div>
+        <div><label>Message</label><textarea id="departmentMessage" placeholder="Describe your request"></textarea></div>
+        <button id="departmentSendBtn" class="w1-alert-send" onclick="sendDepartmentAlert()">SEND ALERT</button>
+        <div id="departmentAlertStatus" class="w1-alert-status" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
 
   <div id="labelModal" class="label-modal" onclick="closeLabelModal(event)"><div class="label-modal-card" onclick="event.stopPropagation()"><div class="label-modal-header"><h2>Print Label</h2><button class="label-close" onclick="closeLabelModal()">×</button></div><div class="label-controls"><div><label>Template</label><select id="labelTemplate" onchange="renderLabelPreview()"><option value="PK">PK</option><option value="BATH">BATH</option></select></div><div><label>Code</label><input id="labelCode" oninput="renderLabelPreview()" /></div><div><label>QTY</label><input id="labelQty" oninput="renderLabelPreview()" /></div><div><label>Date</label><input id="labelDate" oninput="renderLabelPreview()" /></div><div><label>CONT N</label><input id="labelContainer" placeholder="TYPE HERE" oninput="renderLabelPreview()" /></div><div class="wide"><label>Bath model/name</label><input id="labelBathModel" value="ELLI II" oninput="renderLabelPreview()" /></div><div><label>CODE SIZE</label><input id="codeFontSize" type="number" value="88" oninput="renderLabelPreview()" /></div><div><label>CONT SIZE</label><input id="contFontSize" type="number" value="33" oninput="renderLabelPreview()" /></div><div><label>DATE SIZE</label><input id="dateFontSize" type="number" value="42" oninput="renderLabelPreview()" /></div><div><label>QTY SIZE</label><input id="qtyFontSize" type="number" value="32" oninput="renderLabelPreview()" /></div></div><div class="label-actions-row"><button class="label-refresh-btn" onclick="renderLabelPreview()">UPDATE PREVIEW</button><button class="label-print-btn" onclick="window.print()">PRINT LABEL</button></div><div class="label-preview-wrap"><div id="printArea"></div></div></div></div>
 
@@ -849,6 +875,65 @@
       }
     }
 
+
+
+    // Separate ntfy topics for W1 and Tapware. Existing W2 topic and functions unchanged.
+    const DEPARTMENT_ALERT_TOPICS = {"W1": "parisi-w1-13066cebb4e1e91ee2c23ced2ee4e1e9", "TAP": "parisi-tap-199e21f95b227e36e9e6782ab2f71eb5"};
+    let activeDepartmentAlert = null;
+    function openDepartmentAlert(department) {
+      if (!Object.prototype.hasOwnProperty.call(DEPARTMENT_ALERT_TOPICS, department)) return;
+      activeDepartmentAlert = department;
+      document.getElementById('departmentAlertHeading').textContent = department === 'TAP' ? 'Alert to Tapware' : 'Alert to Warehouse 1';
+      document.getElementById('departmentSendBtn').textContent = 'SEND ALERT TO ' + department;
+      const code = document.getElementById('departmentCode');
+      const search = document.getElementById('searchInput');
+      if (!code.value && search && search.value) code.value = search.value.trim().toUpperCase();
+      const loc = document.getElementById('departmentLocation');
+      if (!loc.value && selectedKey) loc.value = selectedKey;
+      const status = document.getElementById('departmentAlertStatus');
+      status.className = 'w1-alert-status'; status.textContent = '';
+      document.getElementById('departmentAlertModal').classList.add('open');
+    }
+    function closeDepartmentAlert(event) {
+      if (event && event.target && event.target.id !== 'departmentAlertModal') return;
+      document.getElementById('departmentAlertModal').classList.remove('open');
+    }
+    async function sendDepartmentAlert() {
+      const department = activeDepartmentAlert;
+      if (!Object.prototype.hasOwnProperty.call(DEPARTMENT_ALERT_TOPICS, department)) return;
+      const value = id => document.getElementById(id).value.trim();
+      const name = value('departmentName');
+      const code = value('departmentCode').toUpperCase();
+      const location = value('departmentLocation').toUpperCase();
+      const qty = value('departmentQty');
+      const note = value('departmentMessage');
+      const status = document.getElementById('departmentAlertStatus');
+      const btn = document.getElementById('departmentSendBtn');
+      if (!code && !note) { status.className='w1-alert-status error'; status.textContent='Enter a product code or message.'; return; }
+      const lines = [
+        'Alert to ' + (department === 'TAP' ? 'Tapware' : 'Warehouse 1'),
+        'From: ' + (name || 'Parisi team'),
+        code ? 'Code: ' + code : '',
+        location ? 'Location: ' + location : '',
+        qty ? 'Qty: ' + qty : '',
+        note ? 'Message: ' + note : ''
+      ].filter(Boolean);
+      btn.disabled=true; btn.textContent='SENDING...';
+      status.className='w1-alert-status'; status.textContent='Sending notification...';
+      try {
+        const response=await fetch('https://ntfy.sh/'+DEPARTMENT_ALERT_TOPICS[department],{
+          method:'POST',
+          headers:{'Title':department+(code?' - '+code:' alert'),'Priority':'high','Tags':'warning,package'},
+          body:lines.join('\n')
+        });
+        if(!response.ok) throw new Error('Notification service returned '+response.status);
+        status.className='w1-alert-status ok'; status.textContent='Alert sent successfully to '+department+'.';
+        ['departmentCode','departmentLocation','departmentQty','departmentMessage'].forEach(id=>document.getElementById(id).value='');
+      } catch(error) {
+        console.error('Department alert failed',error);
+        status.className='w1-alert-status error'; status.textContent='Could not send alert. Check internet connection and try again.';
+      } finally { btn.disabled=false; btn.textContent='SEND ALERT TO '+department; }
+    }
 
     function openMap(index) {
       if (typeof index === "number") {
